@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Wsign-conversion -Wconversion -pedantic -std=c89
+CFLAGS = -Wall -Wextra -Wsign-conversion -Wconversion -pedantic -std=c99 -mwindows
 SRC_DIR = src
 BUILD_DIR = build
 TARGET = main
