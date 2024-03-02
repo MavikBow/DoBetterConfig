@@ -1,15 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <inttypes.h>
 #include <windows.h>
+
+// Is called by the message loop
 
 LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg)
 	{
-		case WM_CREATE:
-			
-		break;
 		case WM_PAINT:
         {
             PAINTSTRUCT ps;
@@ -30,15 +26,15 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProcA(hWnd, uMsg, wParam, lParam);
 }
 
-int32_t WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int32_t nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow)
 {
-	/* these two lines are just here to make the compiler shut up about me not using these four parameters in the code */
-	int32_t useless_int = (int32_t)hInstance | (int32_t)hPrevInstance | (int32_t)pCmdLine | nCmdShow; 
+	/* these two lines are here to make the compiler shut up about me not using these two variables in the code */
+	int useless_int = (int)hPrevInstance | (int)pCmdLine; 
 	useless_int ^= 1;
 
 	// Register the window class
 
-	/* IMPORTANT: it's CRUTIAL for the name in WNDCLASSA and CreateWindowA to match.
+	/* IMPORTANT: it's crutial for the name in WNDCLASSA and CreateWindowA to match.
 	 * Otherwise an invisible process is created that must be manually stopped
 	 * in the task manager. And until you do that further compilation of this code
 	 * and deletion of the already existing executable file isn't feasible */
