@@ -7,8 +7,19 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg)
 	{
+		case WM_CREATE:
+			
+		break;
 		case WM_PAINT:
-			return 0;
+        {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hWnd, &ps);
+
+            // All painting occurs here, between BeginPaint and EndPaint.
+            FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
+            EndPaint(hWnd, &ps);
+        }
+		return 0;
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			return 0;
@@ -17,7 +28,6 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 
 	return DefWindowProcA(hWnd, uMsg, wParam, lParam);
-	return 0;
 }
 
 int32_t WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int32_t nCmdShow)
@@ -26,12 +36,13 @@ int32_t WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLi
 	int32_t useless_int = (int32_t)hInstance | (int32_t)hPrevInstance | (int32_t)pCmdLine | nCmdShow; 
 	useless_int ^= 1;
 
-	/* IMPORTANT: I'm putting the name into a separate string because
-	 * it is CRUTIAL that the name in WNDCLASSA and CreateWindowA are the exact same.
-	 * Otherwise it will create an invisible process that you will need to manually stop
-	 * in the task manager. And until you do that you won't be able to compile this code,
-	 * nor delete the already existing executable file */
-	char* className = "MainWindowClassName";
+	// Register the window class
+
+	/* IMPORTANT: it's CRUTIAL for the name in WNDCLASSA and CreateWindowA to match.
+	 * Otherwise an invisible process is created that must be manually stopped
+	 * in the task manager. And until you do that further compilation of this code
+	 * and deletion of the already existing executable file isn't feasible */
+	char className[] = "MainWindowClassName";
 
 	WNDCLASSA class = {
 		0,
@@ -48,13 +59,26 @@ int32_t WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLi
 
 	RegisterClassA(&class);
 
-	HWND hWindow = CreateWindowA(className, "Hi mom", WS_CAPTION | WS_POPUP | WS_SYSMENU, 50, 50, 500, 500, NULL, NULL, hInstance, NULL);
+	// Create the window
+
+	HWND hWindow = CreateWindowA (
+			className, 
+			"DoBetterConfig.exe",
+		   	WS_MINIMIZEBOX | WS_CAPTION | WS_POPUPWINDOW | WS_SYSMENU,
+		   	(int)CW_USEDEFAULT,
+		   	(int)CW_USEDEFAULT,
+			500, 500,
+			HWND_DESKTOP,
+			NULL, hInstance,NULL);
 
 	ShowWindow(hWindow, nCmdShow);
+
+	// Run the message loop
 
 	MSG msg;
 	while(GetMessage(&msg, NULL, 0, 0) > 0)
 	{
+		TranslateMessage(&msg);
 		DispatchMessageA(&msg);
 	}
 
