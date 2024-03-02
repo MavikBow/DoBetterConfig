@@ -1,1 +1,1 @@
-"# DoBetterConfig" 
+# DoBetterConfig
