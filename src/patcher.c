@@ -16,6 +16,24 @@
 	Reset:	F2 -- 71 - 113  0e
 	*/
 
+enum Control
+{
+	MENU = 0x1,
+	LEFT = 0x2,
+	UP = 0x3,
+	RIGHT = 0x4,
+	DOWN = 0x5,
+	WEAPONLEFT = 0x6,
+	WEAPONRIGHT = 0x8,
+	MAP = 0xA,
+	SHOOT = 0xB,
+	JUMP = 0xC,
+	RESUME = 0xD,
+	RESET = 0xE
+};
+
+unsigned char settingsLayout[13];
+
 const long int locationArr1 = 0x000133a3;
 const long int locationArr2 = 0x000134a3;
 
@@ -58,4 +76,159 @@ void arraygetter(long int location)
 		if(i%16 == 0) printf("\n        ");
 		printf("0x%02x, ", arr[i]);
 	}
+}
+
+const char* keyName(unsigned int wParam)
+{
+	switch(wParam)
+	{
+		case 0x10: return "SHIFT";
+		case 0x11: return "CTRL";
+		case 0x12: return "ALT";
+		case 0x13: return "PAUSE";
+		case 0x14: return "CAPLOCK";
+		case 0x15: return "IME Kana/Hangul";
+		case 0x16: return "IME On";
+		case 0x17: return "IME Junja";
+		case 0x18: return "IME final";
+		case 0x19: return "IME Hanja/Kanji";
+		case 0x1a: return "IME Off";
+		case 0x1b: return "ESC";
+		case 0x1c: return "IME convert";
+		case 0x1d: return "IME nonconvert";
+		case 0x1e: return "IME accept";
+		case 0x1f: return "IME mchr";
+
+		case 0x20: return "SPACEBAR";
+		case 0x21: return "PAGE UP";
+		case 0x22: return "PAGE DOWN";
+		case 0x23: return "END";
+		case 0x24: return "HOME";
+		case 0x25: return "LEFT ARROW";
+		case 0x26: return "UP ARROW";
+		case 0x27: return "RIGHT ARROW";
+		case 0x28: return "DOWN ARROW";
+		case 0x29: return "SELECT";
+		case 0x2a: return "PRINT";
+		case 0x2b: return "EXECUTE";
+		//case 0x2c: return "PRINT SCREEN";
+		case 0x2d: return "INS";
+		case 0x2e: return "DEL";
+		case 0x2f: return "HELP";
+				   
+		case 0x30: return "0";
+		case 0x31: return "1";
+		case 0x32: return "2";
+		case 0x33: return "3";
+		case 0x34: return "4";
+		case 0x35: return "5";
+		case 0x36: return "6";
+		case 0x37: return "7";
+		case 0x38: return "8";
+		case 0x39: return "9";
+		//case 0x3a: return "Undefined key";
+		//case 0x3b: return "Undefined key";
+		//case 0x3c: return "Undefined key";
+		//case 0x3d: return "Undefined key";
+		//case 0x3e: return "Undefined key";
+		//case 0x3f: return "Undefined key";
+
+		//case 0x40: return "1";
+		case 0x41: return "A";
+		case 0x42: return "B";
+		case 0x43: return "C";
+		case 0x44: return "D";
+		case 0x45: return "E";
+		case 0x46: return "F";
+		case 0x47: return "G";
+		case 0x48: return "H";
+		case 0x49: return "I";
+		case 0x4a: return "J";
+		case 0x4b: return "K";
+		case 0x4c: return "L";
+		case 0x4d: return "M";
+		case 0x4e: return "N";
+		case 0x4f: return "O";
+
+		case 0x50: return "P";
+		case 0x51: return "Q";
+		case 0x52: return "R";
+		case 0x53: return "S";
+		case 0x54: return "T";
+		case 0x55: return "U";
+		case 0x56: return "V";
+		case 0x57: return "W";
+		case 0x58: return "X";
+		case 0x59: return "Y";
+		case 0x5a: return "Z";
+		//case 0x5b: return "Left Windows";
+		//case 0x5c: return "Right Windows";
+		case 0x5d: return "Application";
+		//case 0x5e: return "Reserved";
+		//case 0x5f: return "Computer Sleep";
+
+		case 0x60: return "Num 0";
+		case 0x61: return "Num 1";
+		case 0x62: return "Num 2";
+		case 0x63: return "Num 3";
+		case 0x64: return "Num 4";
+		case 0x65: return "Num 5";
+		case 0x66: return "Num 6";
+		case 0x67: return "Num 7";
+		case 0x68: return "Num 8";
+		case 0x69: return "Num 9";
+		case 0x6a: return "Multiply";
+		case 0x6b: return "Add";
+		case 0x6c: return "Separator";
+		case 0x6d: return "Subtract";
+		case 0x6e: return "Decimal";
+		case 0x6f: return "Divide";
+
+		case 0x70: return "F1";
+		case 0x71: return "F2";
+		case 0x72: return "F3";
+		case 0x73: return "F4";
+		case 0x74: return "F5";
+		case 0x75: return "F6";
+		case 0x76: return "F7";
+		case 0x77: return "F8";
+		case 0x78: return "F9";
+		case 0x79: return "F10";
+		case 0x7a: return "F11";
+		case 0x7b: return "F12";
+		case 0x7c: return "F13";
+		case 0x7d: return "F14";
+		case 0x7e: return "F15";
+		case 0x7f: return "F16";
+				   
+		case 0x80: return "F17";
+		case 0x81: return "F18";
+		case 0x82: return "F19";
+		case 0x83: return "F20";
+		case 0x84: return "F21";
+		case 0x85: return "F22";
+		case 0x86: return "F23";
+		case 0x87: return "F24";
+		//case 0x88:
+		//case 0x89:
+		//case 0x8a:
+		//case 0x8b:
+		//case 0x8c:
+		//case 0x8d:
+		//case 0x8e:
+		//case 0x8f: return "Reserved";
+	
+		//case 0x90: return "NUM LOCK"; // decided not to use it 'cause it messes up keys to switch the signal they send here;
+		case 0x91: return "SCROLL LOCK";
+		// 0x92 - 0xb9 these are some obscure signals you won't ever need, trust me
+
+		case 0xba: return ";:";
+		case 0xbb: return "+";
+		case 0xbc: return ",";
+		case 0xbd: return "-";
+		case 0xbe: return ".";
+		case 0xbf: return "/?";
+
+		default: return "NOT SUPPORTED KEY"; 
+	}	
 }

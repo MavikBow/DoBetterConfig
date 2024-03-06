@@ -10,7 +10,8 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
-			printf(" 0x%x\t%d\n", (int)wParam, (int)wParam);
+		case VK_SNAPSHOT:
+			printf(" 0x%x\t%d\t%s\n", (int)wParam, (int)wParam, keyName(wParam));
 			return 0;
 		case WM_PAINT:
         {
@@ -45,7 +46,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 	char className[] = "MainWindowClassName";
 
-	WNDCLASSA wc = {0};
+	WNDCLASSA wc ={0};
 	wc.lpfnWndProc = WinProc;
 	wc.hInstance = hInstance;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
