@@ -1,4 +1,5 @@
 *.swp 
+*.o
 plan.md
 plan.txt
 build/Doukutsu.exe

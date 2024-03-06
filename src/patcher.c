@@ -1,4 +1,6 @@
-#include <stdio.h>
+#include "patcher.h"
+#include <string.h>
+
 
 /*Sorted Controls:
 	Menu :	Esc - 1b - 27 - 01
@@ -63,6 +65,14 @@ const unsigned char defaultArr2[] = {
     0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13,
     0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x0f, 0x10, 0x13, 0x11, 0x12};
 
+int readInput()
+{
+	FILE* in = fopen("Doukutsu.exe", "rb");
+	if(in == NULL) printf("where\n");
+	fclose(in);
+	return 0;
+}
+
 void arraygetter(long int location)
 {
 	unsigned char arr[176];
@@ -76,6 +86,12 @@ void arraygetter(long int location)
 		if(i%16 == 0) printf("\n        ");
 		printf("0x%02x, ", arr[i]);
 	}
+}
+
+int isSupported(unsigned int wParam)
+{
+	if(strcmp(keyName(wParam), "NOT SUPPORTED KEY") == 0) return 0;
+	return -1;
 }
 
 const char* keyName(unsigned int wParam)

@@ -1,6 +1,5 @@
 #include <windows.h>
-#include <stdio.h>
-#include "patcher.c"
+#include "patcher.h"
 
 // Is called by the message loop
 
@@ -35,6 +34,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow)
 {
+	readInput();
 	int window_width = 500;
 	int window_height = 500;
 
