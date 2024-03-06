@@ -1,4 +1,6 @@
 #include <windows.h>
+#include <stdio.h>
+#include "patcher.c"
 
 // Is called by the message loop
 
@@ -6,6 +8,12 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg)
 	{
+		case WM_SYSKEYDOWN:
+			printf("special 0x%x\t%d\n", (int)wParam, (int)wParam);
+			return 0;
+		case WM_KEYDOWN:
+			printf(" 0x%x\t%d\n", (int)wParam, (int)wParam);
+			return 0;
 		case WM_PAINT:
         {
             PAINTSTRUCT ps;
@@ -28,44 +36,38 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow)
 {
+	int window_width = 500;
+	int window_height = 500;
+
 	/* these two lines are here to make the compiler shut up about me not using these two variables in the code */
 	int useless_int = (int)hPrevInstance | (int)pCmdLine; 
 	useless_int ^= 1;
 
 	// Register the window class
 
-	/* IMPORTANT: it's crutial for the name in WNDCLASSA and CreateWindowA to match.
-	 * Otherwise an invisible process is created that must be manually stopped
-	 * in the task manager. And until you do that further compilation of this code
-	 * and deletion of the already existing executable file isn't feasible */
 	char className[] = "MainWindowClassName";
 
-	WNDCLASSA class = {
-		0,
-		WinProc,
-		0,
-		0,
-		hInstance,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		className
-	};
+	WNDCLASSA wc = {0};
+	wc.lpfnWndProc = WinProc;
+	wc.hInstance = hInstance;
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.lpszClassName = className;
+	wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
 
-	RegisterClassA(&class);
+	if(!RegisterClassA(&wc))
+		return -1;
 
 	// Create the window
-
+	
 	HWND hWindow = CreateWindowA (
 			className, 
 			"DoBetterConfig.exe",
 		   	WS_MINIMIZEBOX | WS_CAPTION | WS_POPUPWINDOW | WS_SYSMENU,
-		   	(int)CW_USEDEFAULT,
-		   	(int)CW_USEDEFAULT,
-			500, 500,
+			(int)((GetSystemMetrics(SM_CXFULLSCREEN) - window_width) >> 1),
+			(int)((GetSystemMetrics(SM_CYFULLSCREEN) - window_width) >> 1),
+			window_width, window_height,
 			HWND_DESKTOP,
-			NULL, hInstance,NULL);
+			NULL, hInstance, NULL);
 
 	ShowWindow(hWindow, nCmdShow);
 
