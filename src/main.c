@@ -9,8 +9,6 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch(uMsg)
 	{
 		case WM_SYSKEYDOWN:
-			printf("special 0x%x\t%d\n", (int)wParam, (int)wParam);
-			return 0;
 		case WM_KEYDOWN:
 			printf(" 0x%x\t%d\n", (int)wParam, (int)wParam);
 			return 0;
