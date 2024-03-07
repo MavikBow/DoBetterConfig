@@ -35,6 +35,9 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow)
 {
 	readInput();
+	parseInput();
+	arraygetter();
+	printf("%d\n", menu_p);
 	int window_width = 500;
 	int window_height = 500;
 

@@ -1,6 +1,20 @@
 #include "patcher.h"
 #include <string.h>
 
+#define IGV_MENU (unsigned char) 0x01
+#define IGV_LEFT (unsigned char) 0x02
+#define IGV_UP (unsigned char) 0x03
+#define IGV_RIGHT (unsigned char) 0x04
+#define IGV_DOWN (unsigned char) 0x05
+#define IGV_WEAPONL (unsigned char) 0x06
+#define IGV_ITEMS (unsigned char) 0x08
+#define IGV_WEAPONR (unsigned char) 0x09
+#define IGV_MAP (unsigned char) 0x0a
+#define IGV_SHOOT (unsigned char) 0x0b
+#define IGV_JUMP (unsigned char) 0x0c
+#define IGV_RESUME (unsigned char) 0x0d
+#define IGV_RESET (unsigned char) 0x0e
+
 
 /*Sorted Controls:
 	Menu :	Esc - 1b - 27 - 01
@@ -18,26 +32,12 @@
 	Reset:	F2 -- 71 - 113  0e
 	*/
 
-enum Control
-{
-	MENU = 0x1,
-	LEFT = 0x2,
-	UP = 0x3,
-	RIGHT = 0x4,
-	DOWN = 0x5,
-	WEAPONLEFT = 0x6,
-	WEAPONRIGHT = 0x8,
-	MAP = 0xA,
-	SHOOT = 0xB,
-	JUMP = 0xC,
-	RESUME = 0xD,
-	RESET = 0xE
-};
 
-unsigned char settingsLayout[13];
+const unsigned char defaultLayout[13] = {0x1b, 0x25, 0x26, 0x27, 0x28, 0x41, 0x51, 0x53, 0x57, 0x58, 0x5a, 0x70, 0x71};
+unsigned char newLayout[13] = {0x1b, 0x25, 0x26, 0x27, 0x28, 0x41, 0x51, 0x53, 0x57, 0x58, 0x5a, 0x70, 0x71};
 
-const long int locationArr1 = 0x000133a3;
-const long int locationArr2 = 0x000134a3;
+const long int location1 = 0x000133a3;
+const long int location2 = 0x000134a3;
 
 const unsigned char defaultArr1[] = {
     0x00, 0x14, 0x14, 0x14, 0x14, 0x14, 0x14, 0x14, 0x14, 0x14, 0x14, 0x01, 0x14, 0x14, 0x14, 0x14,
@@ -65,26 +65,118 @@ const unsigned char defaultArr2[] = {
     0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13,
     0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x0f, 0x10, 0x13, 0x11, 0x12};
 
+unsigned char newArr1[176], newArr2[176];
+
+void backUpDoukutsu()
+{
+	FILE* in = fopen("Doukutsu.exe", "rb");
+	FILE* out =fopen("Doukutsu_backup.exe", "wb");
+
+	for(char ch; fread(&ch, 1, 1, in) > 0; fwrite(&ch, 1, 1, out));
+
+	fclose(in);
+	fclose(out);
+}
+
 int readInput()
 {
 	FILE* in = fopen("Doukutsu.exe", "rb");
-	if(in == NULL) printf("where\n");
+	if(in == NULL) return -1;
+
+	fseek(in, location1, SEEK_SET);
+	fread(newArr1, 1, 176, in);
+
+	fseek(in, location2, SEEK_SET);
+	fread(newArr2, 1, 176, in);
+
 	fclose(in);
 	return 0;
 }
 
-void arraygetter(long int location)
+int parseInput()
 {
-	unsigned char arr[176];
-	arr[177] = '\0';
-	FILE* f = fopen("Doukutsu.exe", "rb");
-	if(f == NULL) printf("error\n");
-	fseek(f, location, SEEK_SET);
-	fread(arr, 1,176, f);
-	for(int i = 0; i < 176; i++)
+	const unsigned char OFFSET = 0x10;
+	enum LayoutPosition pos;
+	for(unsigned char i = 0; i < 176; i++)
 	{
-		if(i%16 == 0) printf("\n        ");
-		printf("0x%02x, ", arr[i]);
+		if(newArr1[i] == newArr2[i])
+		{
+			switch(newArr1[i])
+			{
+				case IGV_MENU:	pos = menu_p;		break;
+				case IGV_LEFT:	pos = left_p; 		break;
+				case IGV_UP:	pos = up_p; 		break;
+				case IGV_RIGHT:	pos = right_p; 		break;
+				case IGV_WEAPONL:pos = weaponl_p; 	break;
+				case IGV_ITEMS: pos = items_p; 		break;
+				case IGV_WEAPONR:pos = weaponr_p; 	break;
+				case IGV_MAP: 	pos = map_p; 		break;
+				case IGV_SHOOT: pos = shoot_p;		break;
+				case IGV_JUMP: 	pos = jump_p; 		break;
+				case IGV_RESUME:pos = resume_p; 	break;
+				case IGV_RESET:	pos = reset_p; 		break;
+				default: 							break;
+			}
+			newLayout[pos] = (unsigned char)(i + OFFSET);
+		}
+	}
+
+	return 0;
+}
+
+int uploadKey(unsigned int wParam, enum LayoutPosition pos)
+{
+	if (!isSupported(wParam))
+		return -1;
+	
+	newLayout[pos] = (unsigned char) wParam;
+	return 0;
+}
+
+/*void resetLayout()
+{
+	strncpy(newLayout, defaultLayout, 13);
+}*/
+
+/*void applyFinalLayout()
+{
+	strncpy(newArr1, defaultArr1, 176);
+	strncpy(newArr2, defaultArr2, 176);
+
+	newArr1[newLayout[0]] = IGV_MENU; 
+	newArr1[newLayout[1]] = IGV_LEFT; 
+	newArr1[newLayout[2]] = IGV_UP; 
+	newArr1[newLayout[3]] = IGV_RIGHT; 
+	newArr1[newLayout[4]] = IGV_DOWN; 
+	newArr1[newLayout[5]] = IGV_WEAPONL; 
+	newArr1[newLayout[6]] = IGV_ITEMS; 
+	newArr1[newLayout[7]] = IGV_WEAPONR; 
+	newArr1[newLayout[8]] = IGV_MAP; 
+	newArr1[newLayout[9]] = IGV_SHOOT; 
+	newArr1[newLayout[10]] = IGV_JUMP; 
+	newArr1[newLayout[11]] = IGV_RESUME; 
+	newArr1[newLayout[12]] = IGV_RESET; 
+
+	newArr2[newLayout[0]] = IGV_MENU; 
+	newArr2[newLayout[1]] = IGV_LEFT; 
+	newArr2[newLayout[2]] = IGV_UP; 
+	newArr2[newLayout[3]] = IGV_RIGHT; 
+	newArr2[newLayout[4]] = IGV_DOWN; 
+	newArr2[newLayout[5]] = IGV_WEAPONL; 
+	newArr2[newLayout[6]] = IGV_ITEMS; 
+	newArr2[newLayout[7]] = IGV_WEAPONR; 
+	newArr2[newLayout[8]] = IGV_MAP; 
+	newArr2[newLayout[9]] = IGV_SHOOT; 
+	newArr2[newLayout[10]] = IGV_JUMP; 
+	newArr2[newLayout[11]] = IGV_RESUME; 
+	newArr2[newLayout[12]] = IGV_RESET; 
+}*/
+
+void arraygetter()
+{
+	for(int i = 0; i < 13; i++)
+	{
+		printf("0x%02x, ", newLayout[i]);
 	}
 }
 
@@ -149,7 +241,7 @@ const char* keyName(unsigned int wParam)
 		//case 0x3e: return "Undefined key";
 		//case 0x3f: return "Undefined key";
 
-		//case 0x40: return "1";
+		//case 0x40: return "Undefined key";
 		case 0x41: return "A";
 		case 0x42: return "B";
 		case 0x43: return "C";
