@@ -97,8 +97,10 @@ int parseInput()
 {
 	const unsigned char OFFSET = 0x10;
 	enum LayoutPosition pos;
+	char success;
 	for(unsigned char i = 0; i < 176; i++)
 	{
+		success = 1;
 		if(newArr1[i] == newArr2[i])
 		{
 			switch(newArr1[i])
@@ -115,12 +117,11 @@ int parseInput()
 				case IGV_JUMP: 	pos = jump_p; 		break;
 				case IGV_RESUME:pos = resume_p; 	break;
 				case IGV_RESET:	pos = reset_p; 		break;
-				default: 							break;
+				default: success = 0;				break;
 			}
-			newLayout[pos] = (unsigned char)(i + OFFSET);
+			if(success) newLayout[pos] = (unsigned char)(i + OFFSET);
 		}
 	}
-
 	return 0;
 }
 
@@ -133,15 +134,15 @@ int uploadKey(unsigned int wParam, enum LayoutPosition pos)
 	return 0;
 }
 
-/*void resetLayout()
+void resetLayout()
 {
-	strncpy(newLayout, defaultLayout, 13);
-}*/
+	memcpy(newLayout, defaultLayout, 13);
+}
 
-/*void applyFinalLayout()
+void applyFinalLayout()
 {
-	strncpy(newArr1, defaultArr1, 176);
-	strncpy(newArr2, defaultArr2, 176);
+	memcpy(newArr1, defaultArr1, 176);
+	memcpy(newArr2, defaultArr2, 176);
 
 	newArr1[newLayout[0]] = IGV_MENU; 
 	newArr1[newLayout[1]] = IGV_LEFT; 
@@ -170,7 +171,7 @@ int uploadKey(unsigned int wParam, enum LayoutPosition pos)
 	newArr2[newLayout[10]] = IGV_JUMP; 
 	newArr2[newLayout[11]] = IGV_RESUME; 
 	newArr2[newLayout[12]] = IGV_RESET; 
-}*/
+}
 
 void arraygetter()
 {

@@ -36,7 +36,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 {
 	readInput();
 	parseInput();
-	arraygetter();
 	printf("%d\n", menu_p);
 	int window_width = 500;
 	int window_height = 500;
