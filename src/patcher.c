@@ -144,33 +144,42 @@ void applyFinalLayout()
 	memcpy(newArr1, defaultArr1, 176);
 	memcpy(newArr2, defaultArr2, 176);
 
-	newArr1[newLayout[0]] = IGV_MENU; 
-	newArr1[newLayout[1]] = IGV_LEFT; 
-	newArr1[newLayout[2]] = IGV_UP; 
-	newArr1[newLayout[3]] = IGV_RIGHT; 
-	newArr1[newLayout[4]] = IGV_DOWN; 
-	newArr1[newLayout[5]] = IGV_WEAPONL; 
-	newArr1[newLayout[6]] = IGV_ITEMS; 
-	newArr1[newLayout[7]] = IGV_WEAPONR; 
-	newArr1[newLayout[8]] = IGV_MAP; 
-	newArr1[newLayout[9]] = IGV_SHOOT; 
-	newArr1[newLayout[10]] = IGV_JUMP; 
-	newArr1[newLayout[11]] = IGV_RESUME; 
-	newArr1[newLayout[12]] = IGV_RESET; 
+	const unsigned char OFFSET = 0x10;
 
-	newArr2[newLayout[0]] = IGV_MENU; 
-	newArr2[newLayout[1]] = IGV_LEFT; 
-	newArr2[newLayout[2]] = IGV_UP; 
-	newArr2[newLayout[3]] = IGV_RIGHT; 
-	newArr2[newLayout[4]] = IGV_DOWN; 
-	newArr2[newLayout[5]] = IGV_WEAPONL; 
-	newArr2[newLayout[6]] = IGV_ITEMS; 
-	newArr2[newLayout[7]] = IGV_WEAPONR; 
-	newArr2[newLayout[8]] = IGV_MAP; 
-	newArr2[newLayout[9]] = IGV_SHOOT; 
-	newArr2[newLayout[10]] = IGV_JUMP; 
-	newArr2[newLayout[11]] = IGV_RESUME; 
-	newArr2[newLayout[12]] = IGV_RESET; 
+	newArr1[newLayout[0] - OFFSET] = IGV_MENU; 
+	newArr1[newLayout[1] - OFFSET] = IGV_LEFT; 
+	newArr1[newLayout[2] - OFFSET] = IGV_UP; 
+	newArr1[newLayout[3] - OFFSET] = IGV_RIGHT; 
+	newArr1[newLayout[4] - OFFSET] = IGV_DOWN; 
+	newArr1[newLayout[5] - OFFSET] = IGV_WEAPONL; 
+	newArr1[newLayout[6] - OFFSET] = IGV_ITEMS; 
+	newArr1[newLayout[7] - OFFSET] = IGV_WEAPONR; 
+	newArr1[newLayout[8] - OFFSET] = IGV_MAP; 
+	newArr1[newLayout[9] - OFFSET] = IGV_SHOOT; 
+	newArr1[newLayout[10] - OFFSET] = IGV_JUMP; 
+	newArr1[newLayout[11] - OFFSET] = IGV_RESUME; 
+	newArr1[newLayout[12] - OFFSET] = IGV_RESET; 
+
+	newArr2[newLayout[0] - OFFSET] = IGV_MENU; 
+	newArr2[newLayout[1] - OFFSET] = IGV_LEFT; 
+	newArr2[newLayout[2] - OFFSET] = IGV_UP; 
+	newArr2[newLayout[3] - OFFSET] = IGV_RIGHT; 
+	newArr2[newLayout[4] - OFFSET] = IGV_DOWN; 
+	newArr2[newLayout[5] - OFFSET] = IGV_WEAPONL; 
+	newArr2[newLayout[6] - OFFSET] = IGV_ITEMS; 
+	newArr2[newLayout[7] - OFFSET] = IGV_WEAPONR; 
+	newArr2[newLayout[8] - OFFSET] = IGV_MAP; 
+	newArr2[newLayout[9] - OFFSET] = IGV_SHOOT; 
+	newArr2[newLayout[10] - OFFSET] = IGV_JUMP; 
+	newArr2[newLayout[11] - OFFSET] = IGV_RESUME; 
+	newArr2[newLayout[12] - OFFSET] = IGV_RESET; 
+
+	FILE* out = fopen("Doukutsu.exe", "wb");
+	fseek(out, location1, SEEK_SET);
+	fwrite(&newArr1, 176, 1, out);
+	fseek(out, location2, SEEK_SET);
+	fwrite(&newArr2, 176, 1, out);
+	fclose(out);
 }
 
 void arraygetter()
