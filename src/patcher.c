@@ -58,6 +58,11 @@ void backUpDoukutsu()
 
 	for(char ch; fread(&ch, 1, 1, in) > 0; fwrite(&ch, 1, 1, out));
 
+	fseek(out, location1, SEEK_SET);
+	fwrite(&defaultArr1, 176, 1, out);
+	fseek(out, location2, SEEK_SET);
+	fwrite(&defaultArr2, 176, 1, out);
+
 	fclose(in);
 	fclose(out);
 }
@@ -78,8 +83,8 @@ int readInput()
 }
 
 int parseInput()
-{
-	const unsigned char OFFSET = 0x10;
+{ 
+	const unsigned char OFFSET = 0x10; 
 	enum LayoutPosition pos;
 	char success;
 	for(unsigned char i = 0; i < 176; i++)

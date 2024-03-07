@@ -1,6 +1,8 @@
 #include <windows.h>
 #include "patcher.h"
 
+HWND hButton_Menu;
+
 // Is called by the message loop
 
 LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -10,20 +12,14 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			printf(" 0x%x\t%d\t%s\n", (int)wParam, (int)wParam, keyName(wParam));
-			return 0;
-		case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-
-            // All painting occurs here, between BeginPaint and EndPaint.
-            FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
-            EndPaint(hWnd, &ps);
-        }
-		return 0;
+			break;
+		case WM_NCCREATE:
+			readInput();
+			parseInput();
+			break;
 		case WM_DESTROY:
 			PostQuitMessage(0);
-			return 0;
+			break;
 		default:
 			return DefWindowProcA(hWnd, uMsg, wParam, lParam);
 	}
@@ -33,8 +29,6 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow)
 {
-	readInput();
-	parseInput();
 	int window_width = 500;
 	int window_height = 500;
 
@@ -51,7 +45,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	wc.hInstance = hInstance;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.lpszClassName = className;
-	wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
+	wc.hbrBackground = (HBRUSH)COLOR_BACKGROUND;
 
 	if(!RegisterClassA(&wc))
 		return -1;

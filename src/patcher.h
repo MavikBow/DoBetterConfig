@@ -23,6 +23,7 @@ enum LayoutPosition
 	menu_p, left_p, up_p, right_p, down_p, weaponl_p, items_p, weaponr_p, map_p, shoot_p, jump_p, resume_p, reset_p
 };
 
+void arraygetter();
 int readInput();
 int parseInput();
 void resetLayout();
