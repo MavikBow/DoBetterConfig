@@ -9,7 +9,6 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
-		case VK_SNAPSHOT:
 			printf(" 0x%x\t%d\t%s\n", (int)wParam, (int)wParam, keyName(wParam));
 			return 0;
 		case WM_PAINT:
@@ -36,7 +35,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 {
 	readInput();
 	parseInput();
-	printf("%d\n", menu_p);
 	int window_width = 500;
 	int window_height = 500;
 

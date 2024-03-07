@@ -54,7 +54,7 @@ unsigned char newArr1[176], newArr2[176];
 void backUpDoukutsu()
 {
 	FILE* in = fopen("Doukutsu.exe", "rb");
-	FILE* out =fopen("Doukutsu_backup.exe", "wb");
+	FILE* out = fopen("Doukutsu_backup.exe", "wb");
 
 	for(char ch; fread(&ch, 1, 1, in) > 0; fwrite(&ch, 1, 1, out));
 

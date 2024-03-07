@@ -29,7 +29,7 @@ void resetLayout();
 int isSupported(unsigned int);
 const char* keyName(unsigned int);
 int uploadKey(unsigned int, enum LayoutPosition);
-void applyFinalLayout()
-void backUpDoukutsu()
+void applyFinalLayout();
+void backUpDoukutsu();
 
 #endif
