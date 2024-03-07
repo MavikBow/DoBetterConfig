@@ -1,21 +1,6 @@
 #include "patcher.h"
 #include <string.h>
 
-#define IGV_MENU (unsigned char) 0x01
-#define IGV_LEFT (unsigned char) 0x02
-#define IGV_UP (unsigned char) 0x03
-#define IGV_RIGHT (unsigned char) 0x04
-#define IGV_DOWN (unsigned char) 0x05
-#define IGV_WEAPONL (unsigned char) 0x06
-#define IGV_ITEMS (unsigned char) 0x08
-#define IGV_WEAPONR (unsigned char) 0x09
-#define IGV_MAP (unsigned char) 0x0a
-#define IGV_SHOOT (unsigned char) 0x0b
-#define IGV_JUMP (unsigned char) 0x0c
-#define IGV_RESUME (unsigned char) 0x0d
-#define IGV_RESET (unsigned char) 0x0e
-
-
 /*Sorted Controls:
 	Menu :	Esc - 1b - 27 - 01
 	Left:	<- -- 25 - 37 - 02
@@ -31,7 +16,6 @@
 	Resume:	F1 -- 70 - 112  0d
 	Reset:	F2 -- 71 - 113  0e
 	*/
-
 
 const unsigned char defaultLayout[13] = {0x1b, 0x25, 0x26, 0x27, 0x28, 0x41, 0x51, 0x53, 0x57, 0x58, 0x5a, 0x70, 0x71};
 unsigned char newLayout[13] = {0x1b, 0x25, 0x26, 0x27, 0x28, 0x41, 0x51, 0x53, 0x57, 0x58, 0x5a, 0x70, 0x71};
