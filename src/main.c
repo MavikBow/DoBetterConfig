@@ -1,25 +1,17 @@
+#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
 #include <commctrl.h>
 #include "patcher.h"
 
+#define ID_LISTVIEW 2000
+
 HWND hButton_Menu;
 HWND hWndListView;
-typedef struct PETINFO
-        {
-            TCHAR szKind[10];
-            TCHAR szBreed[50];
-            TCHAR szPrice[20];
-        }PETINFO;
+HINSTANCE g_hInst;
 
-        struct PETINFO rgPetInfo[ ] = 
-        {
-            {TEXT("Dog"),  TEXT("Poodle"),     TEXT("$300.00")},
-            {TEXT("Cat"),  TEXT("Siamese"),    TEXT("$100.00")},
-            {TEXT("Fish"), TEXT("Angel Fish"), TEXT("$10.00")},
-            {TEXT("Bird"), TEXT("Parakeet"),   TEXT("$5.00")},
-            {TEXT("Toad"), TEXT("Woodhouse"),  TEXT("$0.25")},
-        };
-void AddMenus(HWND);
+HWND CreateListView(HINSTANCE, HWND);
+BOOL InitListView(HWND);
+BOOL InsertListViewItems(HWND);
 
 // Is called by the message loop
 
@@ -27,17 +19,17 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg)
 	{
-		case WM_NOTIFY:
-			HandleWM_NOTIFY(lParam);
-
-			break;
-
+		//case WM_NOTIFY:
+		//	HandleWM_NOTIFY(lParam);
+		//	break;
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			printf(" 0x%x\t%d\t%s\n", (int)wParam, (int)wParam, keyName(wParam));
 			break;
 		case WM_CREATE:
-			AddMenus(hWnd);
+			hWndListView = CreateListView(g_hInst, hWnd);
+
+			InitListView(hWndListView);
 			break;
 		case WM_NCCREATE:
 			readInput();
@@ -55,6 +47,8 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow)
 {
+	g_hInst = hInstance;
+
 	int window_width = 500;
 	int window_height = 500;
 
@@ -102,77 +96,55 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	return 0;
 }
 
-BOOL InsertListViewItems(HWND hWndListView, int cItems)
+HWND CreateListView(HINSTANCE hInstance, HWND hWndParent)
 {
-    LVITEM lvI;
+	hWndListView = CreateWindowA(
+			WC_LISTVIEW,                // class name - defined in commctrl.h
+			TEXT(""),
+			WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_REPORT,
+			100, 100, 300, 300,
+			hWndParent,
+			(HMENU)ID_LISTVIEW,
+			hInstance, 
+			NULL);
 
-    // Initialize LVITEM members that are common to all items.
-    lvI.pszText   = LPSTR_TEXTCALLBACK; // Sends an LVN_GETDISPINFO message.
-    lvI.mask      = LVIF_TEXT | LVIF_IMAGE |LVIF_STATE;
-    lvI.stateMask = 0;
-    lvI.iSubItem  = 0;
-    lvI.state     = 0;
+	if(!hWndListView) return NULL;
 
-    // Initialize LVITEM members that are different for each item.
-    for (int index = 0; index < cItems; index++)
-    {
-        lvI.iItem  = index;
-        lvI.iImage = index;
-    
-        // Insert items into the list.
-        if (ListView_InsertItem(hWndListView, &lvI) == -1)
-            return FALSE;
-    }
-
-    return TRUE;
+	return hWndListView;
 }
-void HandleWM_NOTIFY(LPARAM lParam)
+
+BOOL InitListView(HWND hwndListView)
 {
-    NMLVDISPINFO* plvdi;
+	LV_COLUMN lvColumn;
+	int i;
+	TCHAR szString[2][10] = {TEXT("Action"), TEXT("Key")};
 
-    switch (((LPNMHDR) lParam)->code)
-    {
-        case LVN_GETDISPINFO:
+	// empty the list
+	ListView_DeleteAllItems(hwndListView);
 
-            plvdi = (NMLVDISPINFO*)lParam;
+	// initialize the columns
+	lvColumn.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+	lvColumn.fmt = LVCFMT_LEFT;
+	lvColumn.cx = 150;
 
-            switch (plvdi->item.iSubItem)
-            {
-                case 0:
-                    plvdi->item.pszText = rgPetInfo[plvdi->item.iItem].szKind;
-                    break;
-                      
-                case 1:
-                    plvdi->item.pszText = rgPetInfo[plvdi->item.iItem].szBreed;
-                    break;
-                
-                case 2:
-                    plvdi->item.pszText = rgPetInfo[plvdi->item.iItem].szPrice;
-                    break;
-                
-                default:
-                    break;
-            }
+	for(i = 0; i < 2; i++)
+	{
+		lvColumn.pszText = szString[i];
+		ListView_InsertColumn(hwndListView, (WPARAM)i, &lvColumn);
+	}
 
-        break;
+	InsertListViewItems(hwndListView);
 
-    }
-	return;
-}	
-void AddMenus(HWND hWnd)
+	return TRUE;
+}
+
+BOOL InsertListViewItems(HWND hwndListView)
 {
-	//InitCommonControls();
-	hWndListView = CreateWindowA(WC_LISTVIEW, 
-                                     "",
-                                     WS_CHILD | WS_VISIBLE | LVS_LIST,
-                                     100, 100,
-                                     300,
-                                     300,
-                                     hWnd,
-									 NULL,
-                                     //(HMENU)IDM_CODE_SAMPLES,
-                                     //g_hInst,
-									 NULL,
-                                     NULL); 
-	InsertListViewItems(hWndListView, 2);
+	// empty the list
+	ListView_DeleteAllItems(hwndListView);
+
+	// set the number of the items in the list
+	ListView_SetItemCount(hwndListView, 13);
+
+	return TRUE;
 }
