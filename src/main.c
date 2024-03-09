@@ -151,7 +151,9 @@ BOOL InsertListViewItems(HWND hwndListView)
 	ListView_SetItemCount(hwndListView, 13);
 
 	LVITEM lvItem;
-	TCHAR szString[2][10] = {TEXT("Action 1"), TEXT("Key 1")};
+	TCHAR szString[3][2][10] = {{TEXT("Action 1"), TEXT("Key 1")},
+								{TEXT("Action 2"), TEXT("Key 2")},
+								{TEXT("Action 3"), TEXT("Key 3")}};
 	
 	// initialize the item
 	lvItem.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
@@ -159,10 +161,13 @@ BOOL InsertListViewItems(HWND hwndListView)
 	lvItem.iSubItem = 0;
 	lvItem.state = 0;
 
-		lvItem.pszText = szString[0];
+	for(int i = 0; i < 3; i++)
+	{
+		lvItem.pszText = szString[i][0];
 		int Ret = ListView_InsertItem(hwndListView, &lvItem);
-		ListView_SetItemText(hwndListView, 0, 1, szString[1]);
+		ListView_SetItemText(hwndListView, 0, 1, szString[i][1]);
 		Ret++;
+	}
 
 
 	return TRUE;
