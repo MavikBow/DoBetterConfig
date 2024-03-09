@@ -114,6 +114,11 @@ int parseInput()
 	return 0;
 }
 
+const char* retrieveKeyName(enum LayoutPosition pos)
+{
+	return keyName(newLayout[pos]);
+}
+
 int uploadKey(unsigned int wParam, enum LayoutPosition pos)
 {
 	if (!isSupported(wParam))

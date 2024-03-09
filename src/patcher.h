@@ -32,5 +32,6 @@ const char* keyName(unsigned int);
 int uploadKey(unsigned int, enum LayoutPosition);
 void applyFinalLayout();
 void backUpDoukutsu();
+const char* retrieveKeyName(enum LayoutPosition);
 
 #endif

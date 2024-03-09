@@ -26,6 +26,8 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			HandleWM_NOTIFY(lParam);
 		//	HandleWM_NOTIFY(lParam);
 			break;
+		case WM_LBUTTONDOWN:
+		case WM_RBUTTONDOWN:
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			printf(" 0x%x\t%d\t%s\n", (int)wParam, (int)wParam, keyName(wParam));
@@ -109,8 +111,10 @@ HWND CreateListView(HINSTANCE hInstance, HWND hWndParent)
 			WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_NOSORTHEADER | LVS_REPORT | LVS_SINGLESEL,
 			100, 100, 300, 300,
 			hWndParent,
-			(HMENU)ID_LISTVIEW,
-			hInstance, 
+			//(HMENU)ID_LISTVIEW,
+			//hInstance, 
+			NULL,
+			NULL,
 			NULL);
 
 	if(!hWndListView) return NULL;
@@ -154,9 +158,21 @@ BOOL InsertListViewItems(HWND hwndListView)
 	ListView_SetItemCount(hwndListView, 13);
 
 	LVITEM lvItem;
-	TCHAR szString[3][2][10] = {{TEXT("Action 1"), TEXT("Key 1")},
-								{TEXT("Action 2"), TEXT("Key 2")},
-								{TEXT("Action 3"), TEXT("Key 3")}};
+	TCHAR szString[13][2][20] = {{TEXT("Action 0"),	TEXT("Key 0")},
+								{TEXT("Action 1"),	TEXT("Key 1")},
+								{TEXT("Action 2"),	TEXT("Key 2")},
+								{TEXT("Action 3"),	TEXT("Key 3")},
+								{TEXT("Action 4"),	TEXT("Key 4")},
+								{TEXT("Action 5"),	TEXT("Key 5")},
+								{TEXT("Action 6"),	TEXT("Key 6")},
+								{TEXT("Action 7"),	TEXT("Key 7")},
+								{TEXT("Action 8"),	TEXT("Key 8")},
+								{TEXT("Action 9"),	TEXT("Key 9")},
+								{TEXT("Action 10"),	TEXT("Key 10")},
+								{TEXT("Action 11"),	TEXT("Key 11")},
+								{TEXT("Action 12"),	TEXT("Key 12")}};
+
+	for(int i = 0; i < 13; i++) strcpy(szString[i][1], retrieveKeyName(i));
 	
 	// initialize the item
 	lvItem.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
@@ -164,12 +180,11 @@ BOOL InsertListViewItems(HWND hwndListView)
 	lvItem.iSubItem = 0;
 	lvItem.state = 0;
 
-	for(int i = 0; i < 3; i++)
+	for(int i = 0; i < 13; i++)
 	{
 		lvItem.pszText = szString[i][0];
 		int Ret = ListView_InsertItem(hwndListView, &lvItem);
-		ListView_SetItemText(hwndListView, 0, 1, szString[i][1]);
-		Ret++;
+		ListView_SetItemText(hwndListView, (WPARAM)Ret, 1, szString[i][1]);
 	}
 
 
