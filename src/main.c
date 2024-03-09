@@ -11,7 +11,7 @@ HWND hButton_Menu;
 HWND hWndListView;
 HINSTANCE g_hInst;
 
-BOOL takingControlInput = FALSE;
+BOOL takingControlInput;
 
 HWND CreateListView(HINSTANCE, HWND);
 BOOL InitListView(HWND);
@@ -56,6 +56,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow)
 {
 	g_hInst = hInstance;
+	takingControlInput = FALSE;
 
 	int window_width = 500;
 	int window_height = 500;
@@ -83,7 +84,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	HWND hWindow = CreateWindowA (
 			className, 
 			"DoBetterConfig.exe",
-		   	WS_MINIMIZEBOX | WS_CAPTION | WS_POPUPWINDOW | WS_SYSMENU,
+		   	WS_MINIMIZEBOX | WS_CAPTION | WS_POPUPWINDOW | WS_SYSMENU | WS_TABSTOP,
 			(int)((GetSystemMetrics(SM_CXFULLSCREEN) - window_width) >> 1),
 			(int)((GetSystemMetrics(SM_CYFULLSCREEN) - window_width) >> 1),
 			window_width, window_height,
@@ -160,7 +161,7 @@ BOOL InsertListViewItems(HWND hwndListView)
 	ListView_SetItemCount(hwndListView, 13);
 
 	LVITEM lvItem;
-	TCHAR szString[13][2][20] = {{TEXT("Action 0"),	TEXT("Key 0")},
+	TCHAR szString[13][2][30] = {{TEXT("Action 0"),	TEXT("Key 0")},
 								{TEXT("Action 1"),	TEXT("Key 1")},
 								{TEXT("Action 2"),	TEXT("Key 2")},
 								{TEXT("Action 3"),	TEXT("Key 3")},
@@ -174,7 +175,8 @@ BOOL InsertListViewItems(HWND hwndListView)
 								{TEXT("Action 11"),	TEXT("Key 11")},
 								{TEXT("Action 12"),	TEXT("Key 12")}};
 
-	for(int i = 0; i < 13; i++) strcpy(szString[i][1], retrieveKeyName(i));
+	for(int i = 0; i < 13; i++) strcpy(szString[i][0], retrieveKeyName1(i));
+	for(int i = 0; i < 13; i++) strcpy(szString[i][1], retrieveKeyName2(i));
 	
 	// initialize the item
 	lvItem.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
@@ -205,9 +207,18 @@ void HandleWM_NOTIFY(HWND hWnd, LPARAM lParam)
 				int iItem = ListView_GetNextItem(hWndListView, (UINT)-1, LVNI_FOCUSED);
 				if(iItem != -1) 
 				{
+					if(takingControlInput == FALSE)
+					{
+						// here we handle the input for control button
+						takingControlInput = TRUE;
+						SetFocus(hWnd);
+					}
+					else
+					{
+						takingControlInput = FALSE;
+					}
+
 					printf("read click at %d\n", iItem);
-					//printf("haha %ld\n", lParam);
-					SetFocus(hWnd);
 				}
 				else
 					printf("loser\n");

@@ -114,11 +114,36 @@ int parseInput()
 	return 0;
 }
 
-const char* retrieveKeyName(enum LayoutPosition pos)
-{
-	return keyName(newLayout[pos]);
-}
+// ListView population
 
+char controlKeyAction[13][30] =
+{"Menu/Quit",
+"Move Left",
+"Look Up",
+"Move Right",
+"Look Down/Interact",
+"Scroll Weapons Left",
+"Item Inventory",
+"Scroll Weapons Right",
+"Map System",
+"Shoot",
+"Jump/OK",
+"Resume",
+"Reset"};
+
+enum LayoutPosition listViewLayout[13] = 
+{
+	menu_p, resume_p, reset_p, left_p, right_p, up_p, down_p, jump_p,shoot_p, weaponl_p, weaponr_p, items_p, map_p  
+};
+const char* retrieveKeyName1(enum LayoutPosition pos)
+{
+	return controlKeyAction[listViewLayout[pos]];
+}
+const char* retrieveKeyName2(enum LayoutPosition pos)
+{
+	return keyName(newLayout[listViewLayout[pos]]);
+}
+// =============================
 int uploadKey(unsigned int wParam, enum LayoutPosition pos)
 {
 	if (!isSupported(wParam))
