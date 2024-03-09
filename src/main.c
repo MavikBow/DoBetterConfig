@@ -179,11 +179,12 @@ BOOL InsertListViewItems(HWND hwndListView)
 void HandleWM_NOTIFY(LPARAM lParam)
 {
 	LPNMHDR lpnmh = (LPNMHDR)lParam;
-    if(lpnmh->code == LVN_ITEMCHANGED)
+    if(lpnmh->hwndFrom == hWndListView && lpnmh->code == LVN_ITEMCHANGED)
     {
         NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
         if((pnmv->uChanged & LVIF_STATE) && (pnmv->uNewState & LVIS_SELECTED))
         {
+			ListView_SetItemState(hWndListView,(UINT)pnmv->iItem, 0, LVIS_SELECTED);
             // The item just got selected, do something with it.
             // pnmv->iItem is the index of the item that was just selected.
 			printf("click %d\n", pnmv->iItem);
