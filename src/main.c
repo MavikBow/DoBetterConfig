@@ -16,7 +16,7 @@ BOOL takingControlInput = FALSE;
 HWND CreateListView(HINSTANCE, HWND);
 BOOL InitListView(HWND);
 BOOL InsertListViewItems(HWND);
-void HandleWM_NOTIFY(LPARAM);
+void HandleWM_NOTIFY(HWND, LPARAM);
 
 // Is called by the message loop
 
@@ -31,7 +31,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			printf(" 0x%x\t%d\t%s\n", (int)wParam, (int)wParam, keyName(wParam));
 			break;
 		case WM_NOTIFY:
-			HandleWM_NOTIFY(lParam);
+			HandleWM_NOTIFY(hWnd, lParam);
 		//	HandleWM_NOTIFY(lParam);
 			break;
 		case WM_CREATE:
@@ -193,7 +193,7 @@ BOOL InsertListViewItems(HWND hwndListView)
 	return TRUE;
 }
 
-void HandleWM_NOTIFY(LPARAM lParam)
+void HandleWM_NOTIFY(HWND hWnd, LPARAM lParam)
 {
 	LPNMHDR lpnmh = (LPNMHDR)lParam;
 	if(lpnmh->hwndFrom == hWndListView && lpnmh->idFrom == ID_LISTVIEW)
@@ -204,7 +204,13 @@ void HandleWM_NOTIFY(LPARAM lParam)
 				{
 				int iItem = ListView_GetNextItem(hWndListView, (UINT)-1, LVNI_FOCUSED);
 				if(iItem != -1) 
+				{
 					printf("read click at %d\n", iItem);
+					//printf("haha %ld\n", lParam);
+					SetFocus(hWnd);
+				}
+				else
+					printf("loser\n");
 				}
 			break;	
 			case LVN_ITEMCHANGED:
