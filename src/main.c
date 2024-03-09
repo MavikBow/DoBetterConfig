@@ -1,4 +1,5 @@
-#define _WIN32_IE 0x0300
+#define _WIN32_IE 0x0300				// this and the next line hopefully solve some
+#define _WIN32_WINNT 0x0500 			// compatibility issues with older Window versions */
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
 #include <commctrl.h>
@@ -13,6 +14,7 @@ HINSTANCE g_hInst;
 HWND CreateListView(HINSTANCE, HWND);
 BOOL InitListView(HWND);
 BOOL InsertListViewItems(HWND);
+void HandleWM_NOTIFY(LPARAM);
 
 // Is called by the message loop
 
@@ -20,9 +22,10 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg)
 	{
-		//case WM_NOTIFY:
+		case WM_NOTIFY:
+			HandleWM_NOTIFY(lParam);
 		//	HandleWM_NOTIFY(lParam);
-		//	break;
+			break;
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			printf(" 0x%x\t%d\t%s\n", (int)wParam, (int)wParam, keyName(wParam));
@@ -103,7 +106,7 @@ HWND CreateListView(HINSTANCE hInstance, HWND hWndParent)
 			0,
 			WC_LISTVIEW,                // class name - defined in commctrl.h
 			TEXT(""),
-			WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_REPORT,
+			WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_NOSORTHEADER | LVS_REPORT | LVS_SINGLESEL,
 			100, 100, 300, 300,
 			hWndParent,
 			(HMENU)ID_LISTVIEW,
@@ -172,3 +175,19 @@ BOOL InsertListViewItems(HWND hwndListView)
 
 	return TRUE;
 }
+
+void HandleWM_NOTIFY(LPARAM lParam)
+{
+	LPNMHDR lpnmh = (LPNMHDR)lParam;
+    if(lpnmh->code == LVN_ITEMCHANGED)
+    {
+        NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
+        if((pnmv->uChanged & LVIF_STATE) && (pnmv->uNewState & LVIS_SELECTED))
+        {
+            // The item just got selected, do something with it.
+            // pnmv->iItem is the index of the item that was just selected.
+			printf("click %d\n", pnmv->iItem);
+        }
+    }
+}
+
