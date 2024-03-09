@@ -11,6 +11,8 @@ HWND hButton_Menu;
 HWND hWndListView;
 HINSTANCE g_hInst;
 
+BOOL takingControlInput = FALSE;
+
 HWND CreateListView(HINSTANCE, HWND);
 BOOL InitListView(HWND);
 BOOL InsertListViewItems(HWND);
@@ -22,15 +24,15 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg)
 	{
-		case WM_NOTIFY:
-			HandleWM_NOTIFY(lParam);
-		//	HandleWM_NOTIFY(lParam);
-			break;
 		case WM_LBUTTONDOWN:
 		case WM_RBUTTONDOWN:
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			printf(" 0x%x\t%d\t%s\n", (int)wParam, (int)wParam, keyName(wParam));
+			break;
+		case WM_NOTIFY:
+			HandleWM_NOTIFY(lParam);
+		//	HandleWM_NOTIFY(lParam);
 			break;
 		case WM_CREATE:
 			hWndListView = CreateListView(g_hInst, hWnd);
@@ -111,10 +113,10 @@ HWND CreateListView(HINSTANCE hInstance, HWND hWndParent)
 			WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_NOSORTHEADER | LVS_REPORT | LVS_SINGLESEL,
 			100, 100, 300, 300,
 			hWndParent,
-			//(HMENU)ID_LISTVIEW,
-			//hInstance, 
-			NULL,
-			NULL,
+			(HMENU)ID_LISTVIEW,
+			hInstance, 
+			//NULL,
+			//NULL,
 			NULL);
 
 	if(!hWndListView) return NULL;
@@ -194,16 +196,30 @@ BOOL InsertListViewItems(HWND hwndListView)
 void HandleWM_NOTIFY(LPARAM lParam)
 {
 	LPNMHDR lpnmh = (LPNMHDR)lParam;
-    if(lpnmh->hwndFrom == hWndListView && lpnmh->code == LVN_ITEMCHANGED)
-    {
-        NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
-        if((pnmv->uChanged & LVIF_STATE) && (pnmv->uNewState & LVIS_SELECTED))
-        {
-			ListView_SetItemState(hWndListView,(UINT)pnmv->iItem, 0, LVIS_SELECTED);
-            // The item just got selected, do something with it.
-            // pnmv->iItem is the index of the item that was just selected.
-			printf("click %d\n", pnmv->iItem);
-        }
-    }
+	if(lpnmh->hwndFrom == hWndListView && lpnmh->idFrom == ID_LISTVIEW)
+	{
+		switch(lpnmh->code)
+		{
+			case (UINT)NM_CLICK:
+				{
+				int iItem = ListView_GetNextItem(hWndListView, (UINT)-1, LVNI_FOCUSED);
+				if(iItem != -1) 
+					printf("read click at %d\n", iItem);
+				}
+			break;	
+			case LVN_ITEMCHANGED:
+			{
+        		NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
+        		if((pnmv->uChanged & LVIF_STATE) && (pnmv->uNewState & LVIS_SELECTED))
+        		{
+            		// The item just got selected, do something with it.
+            		// pnmv->iItem is the index of the item that was just selected.
+					ListView_SetItemState(hWndListView,(UINT)pnmv->iItem, 0, LVIS_SELECTED);
+					printf("click %d\n", pnmv->iItem);
+        		}
+			}
+			break;
+		}
+	}
 }
 
