@@ -1,3 +1,4 @@
+#define _WIN32_IE 0x0300
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
 #include <commctrl.h>
@@ -98,7 +99,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 HWND CreateListView(HINSTANCE hInstance, HWND hWndParent)
 {
-	hWndListView = CreateWindowA(
+	hWndListView = CreateWindowExA(
+			0,
 			WC_LISTVIEW,                // class name - defined in commctrl.h
 			TEXT(""),
 			WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_REPORT,
@@ -109,6 +111,8 @@ HWND CreateListView(HINSTANCE hInstance, HWND hWndParent)
 			NULL);
 
 	if(!hWndListView) return NULL;
+
+	ListView_SetExtendedListViewStyle(hWndListView, LVS_EX_FULLROWSELECT | LVS_EX_ONECLICKACTIVATE);
 
 	return hWndListView;
 }
