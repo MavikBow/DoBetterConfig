@@ -149,7 +149,7 @@ int uploadKey(unsigned int wParam, enum LayoutPosition pos)
 	if (!isSupported(wParam))
 		return -1;
 	
-	newLayout[pos] = (unsigned char) wParam;
+	newLayout[listViewLayout[pos]] = (unsigned char) wParam;
 	return 0;
 }
 

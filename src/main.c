@@ -12,11 +12,13 @@ HWND hWndListView;
 HINSTANCE g_hInst;
 
 BOOL takingControlInput;
+int changingControlNumber;
 
 HWND CreateListView(HINSTANCE, HWND);
 BOOL InitListView(HWND);
 BOOL InsertListViewItems(HWND);
 void HandleWM_NOTIFY(HWND, LPARAM);
+void changingControl(WPARAM);
 
 // Is called by the message loop
 
@@ -28,11 +30,14 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_RBUTTONDOWN:
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
-			printf(" 0x%x\t%d\t%s\n", (int)wParam, (int)wParam, keyName(wParam));
+			if(takingControlInput == TRUE)
+			{
+				changingControl(wParam);
+				printf(" 0x%x\t%d\t%s\n", (int)wParam, (int)wParam, keyName(wParam));
+			}
 			break;
 		case WM_NOTIFY:
 			HandleWM_NOTIFY(hWnd, lParam);
-		//	HandleWM_NOTIFY(lParam);
 			break;
 		case WM_CREATE:
 			hWndListView = CreateListView(g_hInst, hWnd);
@@ -191,7 +196,6 @@ BOOL InsertListViewItems(HWND hwndListView)
 		ListView_SetItemText(hwndListView, (WPARAM)Ret, 1, szString[i][1]);
 	}
 
-
 	return TRUE;
 }
 
@@ -203,25 +207,24 @@ void HandleWM_NOTIFY(HWND hWnd, LPARAM lParam)
 		switch(lpnmh->code)
 		{
 			case (UINT)NM_CLICK:
+			case (UINT)NM_RCLICK:
 				{
-				int iItem = ListView_GetNextItem(hWndListView, (UINT)-1, LVNI_FOCUSED);
-				if(iItem != -1) 
-				{
-					if(takingControlInput == FALSE)
+					int iItem = ListView_GetNextItem(hWndListView, (UINT)-1, LVNI_FOCUSED);
+					if(iItem != -1) 
 					{
-						// here we handle the input for control button
-						takingControlInput = TRUE;
-						SetFocus(hWnd);
+						if(takingControlInput == FALSE)
+						{
+							// here we handle the input for control button
+							takingControlInput = TRUE;
+							ListView_SetItemText(hWndListView, (WPARAM)iItem, 1, "<Press any key>");
+							changingControlNumber = iItem;
+							SetFocus(hWnd);
+							printf("read click at %d\n", iItem);
+							break;
+						}
+						else
+							changingControl(0x01);
 					}
-					else
-					{
-						takingControlInput = FALSE;
-					}
-
-					printf("read click at %d\n", iItem);
-				}
-				else
-					printf("loser\n");
 				}
 			break;	
 			case LVN_ITEMCHANGED:
@@ -240,3 +243,18 @@ void HandleWM_NOTIFY(HWND hWnd, LPARAM lParam)
 	}
 }
 
+void changingControl(WPARAM wParam)
+{
+	TCHAR temp[30];
+	if(isSupported(wParam))
+	{
+		strcpy(temp, keyName(wParam));
+		uploadKey(wParam, changingControlNumber);
+	}
+	else
+		strcpy(temp, retrieveKeyName2(changingControlNumber));
+
+
+	ListView_SetItemText(hWndListView, (WPARAM)changingControlNumber, 1, temp);
+	takingControlInput = FALSE;
+}
