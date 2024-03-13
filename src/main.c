@@ -7,8 +7,9 @@
 #include "patcher.h"
 
 #define ID_LISTVIEW 2000
+#define ID_RESETBUTTON 2001
+#define ID_APPLYBUTTON 2002
 
-HWND hButton_Menu;
 HWND hWndListView;
 HINSTANCE g_hInst;
 HBRUSH hbr;
@@ -17,10 +18,12 @@ BOOL takingControlInput;
 int changingControlNumber;
 
 HWND CreateListView(HINSTANCE, HWND);
+HWND CreateOtherControls(HWND);
 BOOL InitListView(HWND);
 BOOL InsertListViewItems(HWND);
 void HandleWM_NOTIFY(HWND, LPARAM);
 void changingControl(WPARAM);
+void resetAll();
 
 // Is called by the message loop
 
@@ -38,18 +41,43 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				printf(" 0x%x\t%d\t%s\n", (int)wParam, (int)wParam, keyName(wParam));
 			}
 			break;
+
+		case WM_COMMAND:
+			if(takingControlInput == TRUE)
+			{
+				changingControl(wParam);
+				break;
+			}
+			switch(wParam)
+			{
+				case ID_RESETBUTTON:
+					resetAll();
+					break;
+				case ID_APPLYBUTTON:
+					printf("apply");
+					applyFinalLayout();
+					break;
+				default:
+					break;
+			}
+			break;
+
 		case WM_NOTIFY:
 			HandleWM_NOTIFY(hWnd, lParam);
 			break;
+
 		case WM_CREATE:
 			hWndListView = CreateListView(g_hInst, hWnd);
+			CreateOtherControls(hWnd);
 
 			InitListView(hWndListView);
 			break;
+
 		case WM_NCCREATE:
 			readInput();
 			parseInput();
 			break;
+
 		case WM_DESTROY:
 			DeleteObject(hbr);
 			PostQuitMessage(0);
@@ -247,6 +275,34 @@ void HandleWM_NOTIFY(HWND hWnd, LPARAM lParam)
 	}
 }
 
+HWND CreateOtherControls(HWND hWndParent)
+{
+	HWND hButton_Reset = CreateWindowA(
+			WC_BUTTONA,
+			"Reset All",
+			WS_VISIBLE | WS_CHILD,
+			200, 400, 100, 20,
+			hWndParent,
+			(HMENU)ID_RESETBUTTON,
+			NULL,
+			NULL);
+
+	if(!hButton_Reset) return NULL;
+
+	HWND hButton_Apply = CreateWindowA(
+			WC_BUTTONA,
+			"Apply",
+			WS_VISIBLE | WS_CHILD,
+			200, 420, 100, 20,
+			hWndParent,
+			(HMENU)ID_APPLYBUTTON,
+			NULL,
+			NULL);
+
+	if(!hButton_Apply) return NULL;
+	return hButton_Reset;
+}
+
 void changingControl(WPARAM wParam)
 {
 	TCHAR temp[30];
@@ -259,4 +315,15 @@ void changingControl(WPARAM wParam)
 
 	ListView_SetItemText(hWndListView, (WPARAM)changingControlNumber, 1, temp);
 	takingControlInput = FALSE;
+}
+
+void resetAll()
+{
+	TCHAR temp[30];
+	for(int i = 0; i < 13; i++)
+	{
+		strcpy(temp, retrieveKeyName2Default(i));
+		ListView_SetItemText(hWndListView, (WPARAM)i, 1, temp);
+	}
+	resetLayout();
 }

@@ -2,4 +2,5 @@
 *.o
 plan.md
 plan.txt
-build/Doukutsu.exe
+*.exe
+!build/main.exe
