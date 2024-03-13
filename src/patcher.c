@@ -148,7 +148,11 @@ int uploadKey(unsigned int wParam, enum LayoutPosition pos)
 {
 	if (!isSupported(wParam))
 		return -1;
-	
+
+	// checks if such value already exists in a different place
+	for(unsigned int i = 0; i < 13; i++)
+		if(i != pos && newLayout[listViewLayout[i]] == (unsigned char)wParam) return -1; 
+
 	newLayout[listViewLayout[pos]] = (unsigned char) wParam;
 	return 0;
 }

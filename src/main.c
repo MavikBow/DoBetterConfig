@@ -2,6 +2,7 @@
 #define _WIN32_WINNT 0x0500 			// compatibility issues with older Window versions */
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
+#include <wingdi.h>										
 #include <commctrl.h>
 #include "patcher.h"
 
@@ -10,6 +11,7 @@
 HWND hButton_Menu;
 HWND hWndListView;
 HINSTANCE g_hInst;
+HBRUSH hbr;
 
 BOOL takingControlInput;
 int changingControlNumber;
@@ -49,6 +51,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			parseInput();
 			break;
 		case WM_DESTROY:
+			DeleteObject(hbr);
 			PostQuitMessage(0);
 			break;
 		default:
@@ -74,12 +77,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 	char className[] = "MainWindowClassName";
 
+	hbr = CreateSolidBrush(RGB(240,240,240));
+
 	WNDCLASSA wc ={0};
 	wc.lpfnWndProc = WinProc;
 	wc.hInstance = hInstance;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.lpszClassName = className;
-	wc.hbrBackground = (HBRUSH)COLOR_BACKGROUND;
+	wc.hbrBackground = hbr;
 
 	if(!RegisterClassA(&wc))
 		return -1;
@@ -89,7 +94,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	HWND hWindow = CreateWindowA (
 			className, 
 			"DoBetterConfig.exe",
-		   	WS_MINIMIZEBOX | WS_CAPTION | WS_POPUPWINDOW | WS_SYSMENU | WS_TABSTOP,
+		   	WS_MINIMIZEBOX | WS_CAPTION | WS_POPUPWINDOW | WS_SYSMENU,
 			(int)((GetSystemMetrics(SM_CXFULLSCREEN) - window_width) >> 1),
 			(int)((GetSystemMetrics(SM_CYFULLSCREEN) - window_width) >> 1),
 			window_width, window_height,
@@ -112,8 +117,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 HWND CreateListView(HINSTANCE hInstance, HWND hWndParent)
 {
-	hWndListView = CreateWindowExA(
-			0,
+	hWndListView = CreateWindowA(
 			WC_LISTVIEW,                // class name - defined in commctrl.h
 			TEXT(""),
 			WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_NOSORTHEADER | LVS_REPORT | LVS_SINGLESEL,
@@ -246,14 +250,12 @@ void HandleWM_NOTIFY(HWND hWnd, LPARAM lParam)
 void changingControl(WPARAM wParam)
 {
 	TCHAR temp[30];
-	if(isSupported(wParam))
-	{
+	int success = uploadKey(wParam, changingControlNumber);
+
+	if(success == 0)
 		strcpy(temp, keyName(wParam));
-		uploadKey(wParam, changingControlNumber);
-	}
 	else
 		strcpy(temp, retrieveKeyName2(changingControlNumber));
-
 
 	ListView_SetItemText(hWndListView, (WPARAM)changingControlNumber, 1, temp);
 	takingControlInput = FALSE;

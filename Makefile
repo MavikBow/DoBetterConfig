@@ -16,7 +16,7 @@ OBJ = $(SRC_DIR)/main.o $(SRC_DIR)/patcher.o
 all: $(BUILD_DIR)/$(TARGET).exe
 
 $(BUILD_DIR)/$(TARGET).exe: $(OBJ)
-	$(CC) $(CFLAGS) $^ -o $@ -lcomctl32
+	$(CC) $(CFLAGS) $^ -o $@ -lcomctl32 -lgdi32
 
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
