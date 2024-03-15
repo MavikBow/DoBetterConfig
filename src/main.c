@@ -11,6 +11,7 @@
 #define ID_APPLYBUTTON 2002
 #define ID_CANCELBUTTON 2003
 #define ID_BACKUPCHECKBOX 2004
+#define ID_RESETCHECKBOX 2005
 
 HWND hWndListView;
 HINSTANCE g_hInst;
@@ -66,9 +67,17 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 				case ID_BACKUPCHECKBOX:
 					{
-						BOOL checked = IsDlgButtonChecked(hWnd, ID_BACKUPCHECKBOX);
+						UINT checked = IsDlgButtonChecked(hWnd, ID_BACKUPCHECKBOX);
 						if(checked) CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_UNCHECKED);
 						else CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_CHECKED);
+					}
+					break;
+
+				case ID_RESETCHECKBOX:
+					{
+						UINT checked = IsDlgButtonChecked(hWnd, ID_RESETCHECKBOX);
+						if(checked) CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_UNCHECKED);
+						else CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_CHECKED);
 					}
 					break;
 
@@ -328,9 +337,9 @@ HWND CreateOtherControls(HWND hWndParent)
 
 	if(!hButton_Cancel) return NULL;
 
-	HWND hCheckBox_Backup = CreateWindowA(
+	HWND hCheckBox_BackupDoukutsu = CreateWindowA(
 			WC_BUTTONA,
-			"Backup",
+			"Backup Doukutsu.exe",
 			WS_VISIBLE | WS_CHILD | BS_CHECKBOX,
 			100, 410, 100, 20,
 			hWndParent,
@@ -338,7 +347,19 @@ HWND CreateOtherControls(HWND hWndParent)
 			NULL,
 			NULL);
 
-	if(!hCheckBox_Backup) return NULL;
+	if(!hCheckBox_BackupDoukutsu) return NULL;
+
+	HWND hCheckBox_ResetCondig = CreateWindowA(
+			WC_BUTTONA,
+			"Reset Config.dat",
+			WS_VISIBLE | WS_CHILD | BS_CHECKBOX,
+			100, 430, 100, 20,
+			hWndParent,
+			(HMENU)ID_RESETCHECKBOX,
+			NULL,
+			NULL);
+
+	if(!hCheckBox_ResetCondig) return NULL;
 
 	return hButton_Reset;
 }
