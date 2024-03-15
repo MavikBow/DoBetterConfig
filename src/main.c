@@ -10,6 +10,7 @@
 #define ID_RESETBUTTON 2001
 #define ID_APPLYBUTTON 2002
 #define ID_CANCELBUTTON 2003
+#define ID_BACKUPCHECKBOX 2004
 
 HWND hWndListView;
 HINSTANCE g_hInst;
@@ -54,13 +55,23 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				case ID_RESETBUTTON:
 					resetAll();
 					break;
+
 				case ID_APPLYBUTTON:
-					printf("apply");
 					applyFinalLayout();
 					break;
+
 				case ID_CANCELBUTTON:
 					DestroyWindow(hWnd);
 					break;
+
+				case ID_BACKUPCHECKBOX:
+					{
+						BOOL checked = IsDlgButtonChecked(hWnd, ID_BACKUPCHECKBOX);
+						if(checked) CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_UNCHECKED);
+						else CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_CHECKED);
+					}
+					break;
+
 				default:
 					break;
 			}
@@ -316,6 +327,18 @@ HWND CreateOtherControls(HWND hWndParent)
 			NULL);
 
 	if(!hButton_Cancel) return NULL;
+
+	HWND hCheckBox_Backup = CreateWindowA(
+			WC_BUTTONA,
+			"Backup",
+			WS_VISIBLE | WS_CHILD | BS_CHECKBOX,
+			100, 410, 100, 20,
+			hWndParent,
+			(HMENU)ID_BACKUPCHECKBOX,
+			NULL,
+			NULL);
+
+	if(!hCheckBox_Backup) return NULL;
 
 	return hButton_Reset;
 }
