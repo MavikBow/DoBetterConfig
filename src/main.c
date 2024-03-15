@@ -9,6 +9,7 @@
 #define ID_LISTVIEW 2000
 #define ID_RESETBUTTON 2001
 #define ID_APPLYBUTTON 2002
+#define ID_CANCELBUTTON 2003
 
 HWND hWndListView;
 HINSTANCE g_hInst;
@@ -56,6 +57,9 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				case ID_APPLYBUTTON:
 					printf("apply");
 					applyFinalLayout();
+					break;
+				case ID_CANCELBUTTON:
+					DestroyWindow(hWnd);
 					break;
 				default:
 					break;
@@ -300,6 +304,19 @@ HWND CreateOtherControls(HWND hWndParent)
 			NULL);
 
 	if(!hButton_Apply) return NULL;
+
+	HWND hButton_Cancel = CreateWindowA(
+			WC_BUTTONA,
+			"Cancel",
+			WS_VISIBLE | WS_CHILD,
+			200, 440, 100, 20,
+			hWndParent,
+			(HMENU)ID_CANCELBUTTON,
+			NULL,
+			NULL);
+
+	if(!hButton_Cancel) return NULL;
+
 	return hButton_Reset;
 }
 

@@ -68,7 +68,6 @@ void debug()
 
 void backUpDoukutsu()
 {
-	const unsigned char OFFSET = 0x10;
 	FILE* in = fopen("Doukutsu.exe", "rb");
 	FILE* out = fopen("Doukutsu_backup.exe", "wb");
 	if(in == NULL || out == NULL) printf("game over\n");
