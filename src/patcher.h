@@ -27,6 +27,7 @@ void arraygetter();
 int readInput();
 int parseInput();
 void resetLayout();
+int resetConfig();
 int isSupported(unsigned int);
 const char* keyName(unsigned int);
 int uploadKey(unsigned int, enum LayoutPosition);

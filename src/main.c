@@ -27,6 +27,7 @@ BOOL InsertListViewItems(HWND);
 void HandleWM_NOTIFY(HWND, LPARAM);
 void changingControl(WPARAM);
 void resetAll();
+int handleApply(HWND);
 
 // Is called by the message loop
 
@@ -58,7 +59,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					break;
 
 				case ID_APPLYBUTTON:
-					applyFinalLayout();
+					handleApply(hWnd);
 					break;
 
 				case ID_CANCELBUTTON:
@@ -387,4 +388,24 @@ void resetAll()
 		ListView_SetItemText(hWndListView, (WPARAM)i, 1, temp);
 	}
 	resetLayout();
+}
+
+int handleApply(HWND hWnd)
+{
+	UINT checked;
+	checked = IsDlgButtonChecked(hWnd, ID_BACKUPCHECKBOX);
+	if(checked) 
+	{
+		backUpDoukutsu();
+		printf("dobackupD\n");
+	}
+	checked = IsDlgButtonChecked(hWnd, ID_RESETCHECKBOX);
+	if(checked)	
+	{
+		resetConfig();
+		printf("resetC\n");
+	}
+
+	applyFinalLayout();
+	return 0;
 }

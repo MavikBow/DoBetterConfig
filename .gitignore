@@ -4,3 +4,4 @@ plan.md
 plan.txt
 *.exe
 !build/main.exe
+*.dat

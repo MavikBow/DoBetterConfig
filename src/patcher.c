@@ -66,6 +66,23 @@ void debug()
 	}
 }
 
+int resetConfig()
+{
+	FILE* out = fopen("Config.dat", "r+b");
+	if(out == NULL) printf("Trouble opening Config.dat");
+	const unsigned char* ZERO = 0x0;
+
+	fseek(out, 0x60, SEEK_SET);
+	fwrite(&ZERO, 1, 1, out);
+	fseek(out, 0x64, SEEK_SET);
+	fwrite(&ZERO, 1, 1, out);
+	fseek(out, 0x68, SEEK_SET);
+	fwrite(&ZERO, 1, 1, out);
+
+	fclose(out);
+	return 0;
+}	
+
 void backUpDoukutsu()
 {
 	FILE* in = fopen("Doukutsu.exe", "rb");
