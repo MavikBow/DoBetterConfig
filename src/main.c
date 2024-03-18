@@ -42,7 +42,6 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if(takingControlInput == TRUE)
 			{
 				changingControl(wParam);
-				printf(" 0x%x\t%d\t%s\n", (int)wParam, (int)wParam, keyName(wParam));
 			}
 			break;
 
@@ -96,10 +95,15 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			CreateOtherControls(hWnd);
 
 			InitListView(hWndListView);
+			CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_CHECKED);
 			break;
 
 		case WM_NCCREATE:
-			readInput();
+			if(readInput() != 0)
+			{
+				MessageBox(hWnd, "There trouble reading Doukutsu.exe", NULL, MB_OK);
+				DestroyWindow(hWnd);
+			}
 			parseInput();
 			break;
 
@@ -223,22 +227,7 @@ BOOL InsertListViewItems(HWND hwndListView)
 	ListView_SetItemCount(hwndListView, 13);
 
 	LVITEM lvItem;
-	TCHAR szString[13][2][30] = {{TEXT("Action 0"),	TEXT("Key 0")},
-								{TEXT("Action 1"),	TEXT("Key 1")},
-								{TEXT("Action 2"),	TEXT("Key 2")},
-								{TEXT("Action 3"),	TEXT("Key 3")},
-								{TEXT("Action 4"),	TEXT("Key 4")},
-								{TEXT("Action 5"),	TEXT("Key 5")},
-								{TEXT("Action 6"),	TEXT("Key 6")},
-								{TEXT("Action 7"),	TEXT("Key 7")},
-								{TEXT("Action 8"),	TEXT("Key 8")},
-								{TEXT("Action 9"),	TEXT("Key 9")},
-								{TEXT("Action 10"),	TEXT("Key 10")},
-								{TEXT("Action 11"),	TEXT("Key 11")},
-								{TEXT("Action 12"),	TEXT("Key 12")}};
-
-	for(int i = 0; i < 13; i++) strcpy(szString[i][0], retrieveKeyName1(i));
-	for(int i = 0; i < 13; i++) strcpy(szString[i][1], retrieveKeyName2(i));
+	TCHAR temp[30];
 	
 	// initialize the item
 	lvItem.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
@@ -248,9 +237,12 @@ BOOL InsertListViewItems(HWND hwndListView)
 
 	for(int i = 0; i < 13; i++)
 	{
-		lvItem.pszText = szString[i][0];
+		strcpy(temp, retrieveKeyName1(i));
+		lvItem.pszText = temp;
+		strcpy(temp, retrieveKeyName2(i));
+
 		int Ret = ListView_InsertItem(hwndListView, &lvItem);
-		ListView_SetItemText(hwndListView, (WPARAM)Ret, 1, szString[i][1]);
+		ListView_SetItemText(hwndListView, (WPARAM)Ret, 1, temp);
 	}
 
 	return TRUE;
@@ -276,7 +268,6 @@ void HandleWM_NOTIFY(HWND hWnd, LPARAM lParam)
 							ListView_SetItemText(hWndListView, (WPARAM)iItem, 1, "<Press any key>");
 							changingControlNumber = iItem;
 							SetFocus(hWnd);
-							printf("read click at %d\n", iItem);
 							break;
 						}
 						else
@@ -284,6 +275,7 @@ void HandleWM_NOTIFY(HWND hWnd, LPARAM lParam)
 					}
 				}
 			break;	
+			/*
 			case LVN_ITEMCHANGED:
 			{
         		NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
@@ -296,6 +288,7 @@ void HandleWM_NOTIFY(HWND hWnd, LPARAM lParam)
         		}
 			}
 			break;
+			*/
 		}
 	}
 }
@@ -396,16 +389,26 @@ int handleApply(HWND hWnd)
 	checked = IsDlgButtonChecked(hWnd, ID_BACKUPCHECKBOX);
 	if(checked) 
 	{
-		backUpDoukutsu();
-		printf("dobackupD\n");
+		if(backUpDoukutsu() != 0)
+		{
+			MessageBox(hWnd, "There was trouble with performing a backup", NULL, MB_OK);
+			return -1;
+		}
 	}
 	checked = IsDlgButtonChecked(hWnd, ID_RESETCHECKBOX);
 	if(checked)	
 	{
-		resetConfig();
-		printf("resetC\n");
+		if(resetConfig() != 0)
+		{
+			MessageBox(hWnd, "There was trouble with reading Config.dat", NULL, MB_OK);
+			return -1;
+		}
 	}
 
-	applyFinalLayout();
+	if(applyFinalLayout() != 0)
+	{
+		MessageBox(hWnd, "There was trouble with writing into Doukutsu.exe", NULL, MB_OK);
+		return -1;
+	}
 	return 0;
 }

@@ -31,8 +31,8 @@ int resetConfig();
 int isSupported(unsigned int);
 const char* keyName(unsigned int);
 int uploadKey(unsigned int, enum LayoutPosition);
-void applyFinalLayout();
-void backUpDoukutsu();
+int  applyFinalLayout();
+int backUpDoukutsu();
 const char* retrieveKeyName1(enum LayoutPosition);	// for the Action column
 const char* retrieveKeyName2(enum LayoutPosition);	// for the Key column
 const char* retrieveKeyName2Default(enum LayoutPosition pos);

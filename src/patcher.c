@@ -69,7 +69,7 @@ void debug()
 int resetConfig()
 {
 	FILE* out = fopen("Config.dat", "r+b");
-	if(out == NULL) printf("Trouble opening Config.dat");
+	if(out == NULL) return -1;//printf("Trouble opening Config.dat");
 	const unsigned char* ZERO = 0x0;
 
 	fseek(out, 0x60, SEEK_SET);
@@ -83,11 +83,11 @@ int resetConfig()
 	return 0;
 }	
 
-void backUpDoukutsu()
+int backUpDoukutsu()
 {
 	FILE* in = fopen("Doukutsu.exe", "rb");
 	FILE* out = fopen("Doukutsu_backup.exe", "wb");
-	if(in == NULL || out == NULL) printf("game over\n");
+	if(out == NULL) return -1;//printf("game over\n");
 
 	for(char ch; fread(&ch, 1, 1, in) > 0; fwrite(&ch, 1, 1, out));
 
@@ -98,16 +98,13 @@ void backUpDoukutsu()
 
 	fclose(in);
 	fclose(out);
+	return 0;
 }
 
 int readInput()
 {
 	FILE* in = fopen("Doukutsu.exe", "rb");
-	if(in == NULL)
-	{
-		fclose(in);	   
-		return -1;
-	}
+	if(in == NULL) return -1;
 
 	fseek(in, location1, SEEK_SET);
 	fread(newArr1, 1, 176, in);
@@ -204,7 +201,7 @@ void resetLayout()
 	memcpy(newLayout, defaultLayout, 13);
 }
 
-void applyFinalLayout()
+int applyFinalLayout()
 {
 	memcpy(newArr1, defaultArr1, 176);
 	memcpy(newArr2, defaultArr2, 176);
@@ -249,12 +246,13 @@ void applyFinalLayout()
 	//debug();
 
 	FILE* out = fopen("Doukutsu.exe", "r+b");
-	if(out == NULL) printf("bruh");
+	if(out == NULL) return -1;//printf("bruh");
 	fseek(out, location1, SEEK_SET);
 	fwrite(&newArr1, 176, 1, out);
 	fseek(out, location2, SEEK_SET);
 	fwrite(&newArr2, 176, 1, out);
 	fclose(out);
+	return 0;
 }
 
 void arraygetter()
