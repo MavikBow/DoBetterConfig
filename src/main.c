@@ -119,8 +119,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	g_hInst = hInstance;
 	takingControlInput = FALSE;
 
-	int window_width = 500;
-	int window_height = 500;
+	int window_width = 460;
+	int window_height = 287;
 
 	/* these two lines are here to make the compiler shut up about me not using these two variables in the code */
 	int useless_int = (int)hPrevInstance | (int)pCmdLine; 
@@ -149,7 +149,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 			"DoBetterConfig.exe",
 		   	WS_MINIMIZEBOX | WS_CAPTION | WS_POPUPWINDOW | WS_SYSMENU,
 			(int)((GetSystemMetrics(SM_CXFULLSCREEN) - window_width) >> 1),
-			(int)((GetSystemMetrics(SM_CYFULLSCREEN) - window_width) >> 1),
+			(int)((GetSystemMetrics(SM_CYFULLSCREEN) - window_height) >> 1),
 			window_width, window_height,
 			HWND_DESKTOP,
 			NULL, hInstance, NULL);
@@ -174,7 +174,7 @@ HWND CreateListView(HINSTANCE hInstance, HWND hWndParent)
 			WC_LISTVIEW,                // class name - defined in commctrl.h
 			TEXT(""),
 			WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_NOSORTHEADER | LVS_REPORT | LVS_SINGLESEL,
-			100, 100, 300, 300,
+			15, 15, 300, 231,
 			hWndParent,
 			(HMENU)ID_LISTVIEW,
 			hInstance, 
@@ -305,8 +305,8 @@ HWND CreateOtherControls(HWND hWndParent)
 	HWND hButton_Reset = CreateWindowA(
 			WC_BUTTONA,
 			"Reset All",
-			WS_VISIBLE | WS_CHILD,
-			200, 400, 100, 20,
+			WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+			325, 133, 115, 35,
 			hWndParent,
 			(HMENU)ID_RESETBUTTON,
 			NULL,
@@ -317,8 +317,8 @@ HWND CreateOtherControls(HWND hWndParent)
 	HWND hButton_Apply = CreateWindowA(
 			WC_BUTTONA,
 			"Apply",
-			WS_VISIBLE | WS_CHILD,
-			200, 420, 100, 20,
+			WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+			325, 172, 115, 35,
 			hWndParent,
 			(HMENU)ID_APPLYBUTTON,
 			NULL,
@@ -329,8 +329,8 @@ HWND CreateOtherControls(HWND hWndParent)
 	HWND hButton_Cancel = CreateWindowA(
 			WC_BUTTONA,
 			"Cancel",
-			WS_VISIBLE | WS_CHILD,
-			200, 440, 100, 20,
+			WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+			325, 211, 115, 35,
 			hWndParent,
 			(HMENU)ID_CANCELBUTTON,
 			NULL,
@@ -341,8 +341,8 @@ HWND CreateOtherControls(HWND hWndParent)
 	HWND hCheckBox_BackupDoukutsu = CreateWindowA(
 			WC_BUTTONA,
 			"Backup Doukutsu.exe",
-			WS_VISIBLE | WS_CHILD | BS_CHECKBOX,
-			100, 410, 100, 20,
+			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
+			325, 25, 115, 40,
 			hWndParent,
 			(HMENU)ID_BACKUPCHECKBOX,
 			NULL,
@@ -353,8 +353,8 @@ HWND CreateOtherControls(HWND hWndParent)
 	HWND hCheckBox_ResetCondig = CreateWindowA(
 			WC_BUTTONA,
 			"Reset Config.dat",
-			WS_VISIBLE | WS_CHILD | BS_CHECKBOX,
-			100, 430, 100, 20,
+			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
+			325, 70, 115, 40,
 			hWndParent,
 			(HMENU)ID_RESETCHECKBOX,
 			NULL,
