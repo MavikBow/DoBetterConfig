@@ -1,5 +1,6 @@
 *.swp 
 *.o
+*.res
 plan.md
 plan.txt
 *.exe

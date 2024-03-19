@@ -5,6 +5,7 @@
 #include <wingdi.h>										
 #include <commctrl.h>
 #include "patcher.h"
+#include "resrc/myicon.h"
 
 #define ID_LISTVIEW 2000
 #define ID_RESETBUTTON 2001
@@ -16,6 +17,7 @@
 HWND hWndListView;
 HINSTANCE g_hInst;
 HBRUSH hbr;
+HICON hic;
 
 BOOL takingControlInput;
 int changingControlNumber;
@@ -109,6 +111,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		case WM_DESTROY:
 			DeleteObject(hbr);
+			DeleteObject(hic);
 			PostQuitMessage(0);
 			break;
 		default:
@@ -135,10 +138,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	char className[] = "MainWindowClassName";
 
 	hbr = CreateSolidBrush(RGB(240,240,240));
+	hic = LoadIconA(hInstance, MAKEINTRESOURCE(IDI_MYICON));
+	if(hic == NULL) printf("error with icon %ld", GetLastError());
 
 	WNDCLASSA wc ={0};
 	wc.lpfnWndProc = WinProc;
 	wc.hInstance = hInstance;
+	wc.hIcon = hic;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.lpszClassName = className;
 	wc.hbrBackground = hbr;
@@ -227,7 +233,22 @@ BOOL InsertListViewItems(HWND hwndListView)
 	ListView_SetItemCount(hwndListView, 13);
 
 	LVITEM lvItem;
-	TCHAR temp[30];
+	TCHAR szString[13][2][30] = {{TEXT("Action 0"),	TEXT("Key 0")},
+								{TEXT("Action 1"),	TEXT("Key 1")},
+								{TEXT("Action 2"),	TEXT("Key 2")},
+								{TEXT("Action 3"),	TEXT("Key 3")},
+								{TEXT("Action 4"),	TEXT("Key 4")},
+								{TEXT("Action 5"),	TEXT("Key 5")},
+								{TEXT("Action 6"),	TEXT("Key 6")},
+								{TEXT("Action 7"),	TEXT("Key 7")},
+								{TEXT("Action 8"),	TEXT("Key 8")},
+								{TEXT("Action 9"),	TEXT("Key 9")},
+								{TEXT("Action 10"),	TEXT("Key 10")},
+								{TEXT("Action 11"),	TEXT("Key 11")},
+								{TEXT("Action 12"),	TEXT("Key 12")}};
+
+	for(int i = 0; i < 13; i++) strcpy(szString[i][0], retrieveKeyName1(i));
+	for(int i = 0; i < 13; i++) strcpy(szString[i][1], retrieveKeyName2(i));
 	
 	// initialize the item
 	lvItem.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
@@ -237,12 +258,9 @@ BOOL InsertListViewItems(HWND hwndListView)
 
 	for(int i = 0; i < 13; i++)
 	{
-		strcpy(temp, retrieveKeyName1(i));
-		lvItem.pszText = temp;
-		strcpy(temp, retrieveKeyName2(i));
-
+		lvItem.pszText = szString[i][0];
 		int Ret = ListView_InsertItem(hwndListView, &lvItem);
-		ListView_SetItemText(hwndListView, (WPARAM)Ret, 1, temp);
+		ListView_SetItemText(hwndListView, (WPARAM)Ret, 1, szString[i][1]);
 	}
 
 	return TRUE;
