@@ -1,6 +1,6 @@
 # Compiler
 CC = gcc
-CFLAGS = -Wall -Wextra -Wsign-conversion -Wconversion -pedantic -std=c99 #-mwindows
+CFLAGS = -Wall -Wextra -Wsign-conversion -Wconversion -pedantic -std=c99 -mwindows
 LIBS = -lcomctl32 -lgdi32
 
 # Resource compiler (windres for GCC)
@@ -9,7 +9,7 @@ RC = windres
 SRC_DIR = src
 BUILD_DIR = build
 RESRC_DIR = $(SRC_DIR)/resrc
-TARGET = main.exe
+TARGET = DoBetterConfig.exe
 
 # Dependencies
 DEPS = patcher.h myicon.h
@@ -21,6 +21,9 @@ RES = $(RESRC_DIR)/myicon.res
 .PHONY: all clean
 
 all: $(BUILD_DIR)/$(TARGET) 
+
+launch: $(OBJ) $(RES)
+	$(CC) $(CFLAGS) -mwindows $^ -o $@ $(LIBS)
 
 $(BUILD_DIR)/$(TARGET): $(OBJ) $(RES)
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
@@ -35,4 +38,4 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 clean:
-	rm -f $(TARGET) $(OBJ) $(RES)
+	rm -f $(OBJ) $(RES)

@@ -16,6 +16,7 @@
 
 HWND hWndListView;
 HINSTANCE g_hInst;
+TCHAR versionLabel[20] = "Version: 1.0.0";
 
 BOOL takingControlInput;
 int changingControlNumber;
@@ -124,7 +125,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	takingControlInput = FALSE;
 
 	int window_width = 460;
-	int window_height = 287;
+	int window_height = 288;
 
 	/* these two lines are here to make the compiler shut up about me not using these two variables in the code */
 	int useless_int = (int)hPrevInstance | (int)pCmdLine; 
@@ -371,6 +372,18 @@ HWND CreateOtherControls(HWND hWndParent)
 			NULL);
 
 	if(!hCheckBox_ResetCondig) return NULL;
+
+	HWND hStatic_VersionLabel = CreateWindowA(
+			WC_STATIC,
+			versionLabel,
+			WS_VISIBLE | WS_CHILD,
+			3, 246, 115, 20,
+			hWndParent,
+			NULL,
+			NULL,
+			NULL);
+
+	if(!hStatic_VersionLabel) return NULL;
 
 	return hButton_Reset;
 }
