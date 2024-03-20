@@ -16,8 +16,6 @@
 
 HWND hWndListView;
 HINSTANCE g_hInst;
-HBRUSH hbr;
-HICON hic;
 
 BOOL takingControlInput;
 int changingControlNumber;
@@ -103,6 +101,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_NCCREATE:
 			if(readInput() != 0)
 			{
+				MessageBeep(MB_OK);
 				MessageBox(hWnd, "There trouble reading Doukutsu.exe", NULL, MB_OK);
 				DestroyWindow(hWnd);
 			}
@@ -110,8 +109,6 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case WM_DESTROY:
-			DeleteObject(hbr);
-			DeleteObject(hic);
 			PostQuitMessage(0);
 			break;
 		default:
@@ -137,9 +134,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 	char className[] = "MainWindowClassName";
 
-	hbr = CreateSolidBrush(RGB(240,240,240));
-	hic = LoadIconA(hInstance, MAKEINTRESOURCE(IDI_MYICON));
-	if(hic == NULL) printf("error with icon %ld", GetLastError());
+	HBRUSH hbr = CreateSolidBrush(RGB(240,240,240));
+	HICON hic = LoadIconA(hInstance, MAKEINTRESOURCE(IDI_MYICON));
 
 	WNDCLASSA wc ={0};
 	wc.lpfnWndProc = WinProc;
@@ -174,6 +170,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		TranslateMessage(&msg);
 		DispatchMessageA(&msg);
 	}
+
+	DeleteObject(hbr);
+	DeleteObject(hic);
 
 	return 0;
 }
@@ -384,7 +383,10 @@ void changingControl(WPARAM wParam)
 	if(success == 0)
 		strcpy(temp, keyName(wParam));
 	else
+	{
 		strcpy(temp, retrieveKeyName2(changingControlNumber));
+		MessageBeep(MB_OK);
+	}
 
 	ListView_SetItemText(hWndListView, (WPARAM)changingControlNumber, 1, temp);
 	takingControlInput = FALSE;
@@ -409,6 +411,7 @@ int handleApply(HWND hWnd)
 	{
 		if(backUpDoukutsu() != 0)
 		{
+			MessageBeep(MB_OK);
 			MessageBox(hWnd, "There was trouble with performing a backup", NULL, MB_OK);
 			return -1;
 		}
@@ -418,6 +421,7 @@ int handleApply(HWND hWnd)
 	{
 		if(resetConfig() != 0)
 		{
+			MessageBeep(MB_OK);
 			MessageBox(hWnd, "There was trouble with reading Config.dat", NULL, MB_OK);
 			return -1;
 		}
@@ -425,8 +429,10 @@ int handleApply(HWND hWnd)
 
 	if(applyFinalLayout() != 0)
 	{
+		MessageBeep(MB_OK);
 		MessageBox(hWnd, "There was trouble with writing into Doukutsu.exe", NULL, MB_OK);
 		return -1;
 	}
+
 	return 0;
 }
