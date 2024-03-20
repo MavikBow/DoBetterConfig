@@ -16,7 +16,8 @@ DEPS = patcher.h myicon.h
 
 # Object files
 OBJ = $(SRC_DIR)/main.o $(SRC_DIR)/patcher.o
-RES = $(RESRC_DIR)/myicon.res
+RES = $(RESRC_DIR)/myicon.res 
+METADATA = $(RESRC_DIR)/metadata.res
 
 .PHONY: all clean
 
@@ -25,11 +26,14 @@ all: $(BUILD_DIR)/$(TARGET)
 launch: $(OBJ) $(RES)
 	$(CC) $(CFLAGS) -mwindows $^ -o $@ $(LIBS)
 
-$(BUILD_DIR)/$(TARGET): $(OBJ) $(RES)
+$(BUILD_DIR)/$(TARGET): $(OBJ) $(RES) $(METADATA)
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(METADATA): $(METADATA:.res=.rc)
+	$(RC) $< -O coff -o $@
 
 $(RESRC_DIR)/%.res: $(RESRC_DIR)/%.rc $(RESRC_DIR)/%.h $(RESRC_DIR)/*.ico
 	$(RC) $< -O coff -o $@

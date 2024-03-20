@@ -17,6 +17,7 @@
 HWND hWndListView;
 HINSTANCE g_hInst;
 TCHAR versionLabel[20] = "Version: 1.0.0";
+HFONT hFont;
 
 BOOL takingControlInput;
 int changingControlNumber;
@@ -174,6 +175,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 	DeleteObject(hbr);
 	DeleteObject(hic);
+	DeleteObject(hFont);
 
 	return 0;
 }
@@ -313,6 +315,20 @@ void HandleWM_NOTIFY(HWND hWnd, LPARAM lParam)
 
 HWND CreateOtherControls(HWND hWndParent)
 {
+	// Create a font to use with the version label
+	hFont = CreateFontA
+		(14, 0, 0, 0,
+		 FW_DONTCARE,
+		 FALSE,
+		 FALSE,
+		 FALSE,
+		 ANSI_CHARSET,
+		 OUT_DEFAULT_PRECIS,
+		 CLIP_DEFAULT_PRECIS,
+		 DEFAULT_QUALITY,
+		 DEFAULT_PITCH | FF_SWISS,
+		 "Segoe UI");
+
 	HWND hButton_Reset = CreateWindowA(
 			WC_BUTTONA,
 			"Reset All",
@@ -384,6 +400,7 @@ HWND CreateOtherControls(HWND hWndParent)
 			NULL);
 
 	if(!hStatic_VersionLabel) return NULL;
+	SendMessage(hStatic_VersionLabel, WM_SETFONT, (WPARAM)hFont, TRUE);
 
 	// Create the tooltip controls
 	
