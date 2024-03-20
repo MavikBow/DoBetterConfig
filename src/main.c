@@ -361,7 +361,7 @@ HWND CreateOtherControls(HWND hWndParent)
 
 	if(!hCheckBox_BackupDoukutsu) return NULL;
 
-	HWND hCheckBox_ResetCondig = CreateWindowA(
+	HWND hCheckBox_ResetConfig = CreateWindowA(
 			WC_BUTTONA,
 			"Reset Config.dat",
 			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
@@ -371,7 +371,7 @@ HWND CreateOtherControls(HWND hWndParent)
 			NULL,
 			NULL);
 
-	if(!hCheckBox_ResetCondig) return NULL;
+	if(!hCheckBox_ResetConfig) return NULL;
 
 	HWND hStatic_VersionLabel = CreateWindowA(
 			WC_STATIC,
@@ -384,6 +384,50 @@ HWND CreateOtherControls(HWND hWndParent)
 			NULL);
 
 	if(!hStatic_VersionLabel) return NULL;
+
+	// Create the tooltip controls
+	
+    HWND hTooltip_BackupDoukutsu = CreateWindowA
+		(TOOLTIPS_CLASS,
+		NULL, 
+    	WS_POPUP | TTS_ALWAYSTIP, // Always display the tooltip
+    	(int)CW_USEDEFAULT, (int)CW_USEDEFAULT, (int)CW_USEDEFAULT, (int)CW_USEDEFAULT,
+    	hWndParent,
+		NULL, 
+		g_hInst, 
+		NULL);
+
+    // Associate the tooltip with the hCheckBox_BackupDoukutsu window
+    TOOLINFO toolInfo1 = { 0 };
+    toolInfo1.cbSize = sizeof(TOOLINFO);
+    toolInfo1.hwnd = hWndParent;
+    toolInfo1.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
+    toolInfo1.uId = (UINT_PTR)hCheckBox_BackupDoukutsu;
+    toolInfo1.lpszText = "Creates a Doukutsu_backup.exe file with default settings";
+    SendMessage(hTooltip_BackupDoukutsu, TTM_ADDTOOL, 0, (LPARAM)&toolInfo1);
+    SendMessage(hTooltip_BackupDoukutsu, TTM_SETDELAYTIME, TTDT_AUTOPOP, 6000);
+	
+    HWND hTooltip_ResetConfig = CreateWindowA
+		(TOOLTIPS_CLASS,
+		NULL,
+    	WS_POPUP | TTS_ALWAYSTIP, // Always display the tooltip
+    	(int)CW_USEDEFAULT, (int)CW_USEDEFAULT, (int)CW_USEDEFAULT, (int)CW_USEDEFAULT,
+		hWndParent,
+		NULL,
+		g_hInst, 
+		NULL);
+
+	if(!hTooltip_ResetConfig) return NULL;
+
+    // Associate the tooltip with the hCheckBox_ResetConfig window
+    TOOLINFO toolInfo2 = { 0 };
+    toolInfo2.cbSize = sizeof(TOOLINFO);
+    toolInfo2.hwnd = hWndParent;
+    toolInfo2.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
+    toolInfo2.uId = (UINT_PTR)hCheckBox_ResetConfig;
+    toolInfo2.lpszText = "Resets the radiobutton options from DoConfig.exe (Recommended)";
+    SendMessage(hTooltip_ResetConfig, TTM_ADDTOOL, 0, (LPARAM)&toolInfo2);
+    SendMessage(hTooltip_ResetConfig, TTM_SETDELAYTIME, TTDT_AUTOPOP, 7000);
 
 	return hButton_Reset;
 }
