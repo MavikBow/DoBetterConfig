@@ -21,7 +21,7 @@ METADATA = $(RESRC_DIR)/metadata.res
 
 .PHONY: all clean
 
-all: $(BUILD_DIR)/$(TARGET) 
+all: $(BUILD_DIR) $(BUILD_DIR)/$(TARGET) 
 
 launch: $(OBJ) $(RES)
 	$(CC) $(CFLAGS) -mwindows $^ -o $@ $(LIBS)
