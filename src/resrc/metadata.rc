@@ -9,9 +9,8 @@ FILETYPE VFT_APP
     {
         BLOCK "100904E4"
         {
-            VALUE "CompanyName", "Author"
             VALUE "FileVersion", "1.0.0"
-            VALUE "FileDescription", "Better controls for Cave Story"
+            VALUE "FileDescription", "DoBetterConfig"
             VALUE "InternalName", "Utility"
             VALUE "LegalCopyright", ""
             VALUE "LegalTrademarks", ""

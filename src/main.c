@@ -104,7 +104,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if(readInput() != 0)
 			{
 				MessageBeep(MB_OK);
-				MessageBox(hWnd, "There trouble reading Doukutsu.exe", NULL, MB_OK);
+				MessageBox(hWnd, "There was trouble reading Doukutsu.exe", NULL, MB_OK);
 				DestroyWindow(hWnd);
 			}
 			parseInput();

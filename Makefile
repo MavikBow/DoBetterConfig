@@ -42,4 +42,4 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 clean:
-	rm -f $(OBJ) $(RES)
+	rm -f $(OBJ) $(RES) $(METADATA)
