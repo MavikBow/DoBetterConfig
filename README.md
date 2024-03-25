@@ -78,6 +78,11 @@ This program was written for the Windows operating system.
 In order to compile:
 
 1. Clone the repository
+
+    ```sh
+    git clone https://github.com/MavikBow/DoBetterConfig.git
+    ```
+
 2. In the DoBetterConfig directory run
 
     ```sh
