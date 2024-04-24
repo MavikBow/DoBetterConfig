@@ -18,7 +18,7 @@
 	*/
 
 const unsigned char defaultLayout[13] = {0x1b, 0x25, 0x26, 0x27, 0x28, 0x41, 0x51, 0x53, 0x57, 0x58, 0x5a, 0x70, 0x71};
-unsigned char newLayout[13] = {0x1b, 0x25, 0x26, 0x27, 0x28, 0x41, 0x51, 0x53, 0x57, 0x58, 0x5a, 0x70, 0x71};
+unsigned char newLayout[13] = {0};
 
 const long int location1 = 0x000133a3;
 const long int location2 = 0x000134a3;
@@ -188,7 +188,10 @@ int uploadKey(unsigned int wParam, enum LayoutPosition pos)
 	if (!isSupported(wParam))
 		return -1;
 
-	// checks if such value already exists in a different place
+	// checks if you want to unbind a key
+	if (strcmp(keyName(wParam),"<NONE>") == 0)
+		wParam = 0;
+	else // checks if such value already exists in a different place
 	for(unsigned int i = 0; i < 13; i++)
 		if(i != pos && newLayout[listViewLayout[i]] == (unsigned char)wParam) return -1; 
 
@@ -215,33 +218,33 @@ int applyFinalLayout()
 		newArr2[defaultLayout[i] - OFFSET] = 0x13;
 	}
 
-	newArr1[newLayout[0] - OFFSET] = IGV_MENU; 
-	newArr1[newLayout[1] - OFFSET] = IGV_LEFT; 
-	newArr1[newLayout[2] - OFFSET] = IGV_UP; 
-	newArr1[newLayout[3] - OFFSET] = IGV_RIGHT; 
-	newArr1[newLayout[4] - OFFSET] = IGV_DOWN; 
-	newArr1[newLayout[5] - OFFSET] = IGV_WEAPONL; 
-	newArr1[newLayout[6] - OFFSET] = IGV_ITEMS; 
-	newArr1[newLayout[7] - OFFSET] = IGV_WEAPONR; 
-	newArr1[newLayout[8] - OFFSET] = IGV_MAP; 
-	newArr1[newLayout[9] - OFFSET] = IGV_SHOOT; 
-	newArr1[newLayout[10] - OFFSET] = IGV_JUMP; 
-	newArr1[newLayout[11] - OFFSET] = IGV_RESUME; 
-	newArr1[newLayout[12] - OFFSET] = IGV_RESET; 
+	if(newLayout[0] != 0) newArr1[newLayout[0] - OFFSET] = IGV_MENU; 
+	if(newLayout[1] != 0) newArr1[newLayout[1] - OFFSET] = IGV_LEFT; 
+	if(newLayout[2] != 0) newArr1[newLayout[2] - OFFSET] = IGV_UP; 
+	if(newLayout[3] != 0) newArr1[newLayout[3] - OFFSET] = IGV_RIGHT; 
+	if(newLayout[4] != 0) newArr1[newLayout[4] - OFFSET] = IGV_DOWN; 
+	if(newLayout[5] != 0) newArr1[newLayout[5] - OFFSET] = IGV_WEAPONL; 
+	if(newLayout[6] != 0) newArr1[newLayout[6] - OFFSET] = IGV_ITEMS; 
+	if(newLayout[7] != 0) newArr1[newLayout[7] - OFFSET] = IGV_WEAPONR; 
+	if(newLayout[8] != 0) newArr1[newLayout[8] - OFFSET] = IGV_MAP; 
+	if(newLayout[9] != 0) newArr1[newLayout[9] - OFFSET] = IGV_SHOOT; 
+	if(newLayout[10] != 0) newArr1[newLayout[10] - OFFSET] = IGV_JUMP; 
+	if(newLayout[11] != 0) newArr1[newLayout[11] - OFFSET] = IGV_RESUME; 
+	if(newLayout[12] != 0) newArr1[newLayout[12] - OFFSET] = IGV_RESET; 
 
-	newArr2[newLayout[0] - OFFSET] = IGV_MENU; 
-	newArr2[newLayout[1] - OFFSET] = IGV_LEFT; 
-	newArr2[newLayout[2] - OFFSET] = IGV_UP; 
-	newArr2[newLayout[3] - OFFSET] = IGV_RIGHT; 
-	newArr2[newLayout[4] - OFFSET] = IGV_DOWN; 
-	newArr2[newLayout[5] - OFFSET] = IGV_WEAPONL; 
-	newArr2[newLayout[6] - OFFSET] = IGV_ITEMS; 
-	newArr2[newLayout[7] - OFFSET] = IGV_WEAPONR; 
-	newArr2[newLayout[8] - OFFSET] = IGV_MAP; 
-	newArr2[newLayout[9] - OFFSET] = IGV_SHOOT; 
-	newArr2[newLayout[10] - OFFSET] = IGV_JUMP; 
-	newArr2[newLayout[11] - OFFSET] = IGV_RESUME; 
-	newArr2[newLayout[12] - OFFSET] = IGV_RESET; 
+	if(newLayout[0] != 0) newArr2[newLayout[0] - OFFSET] = IGV_MENU; 
+	if(newLayout[1] != 0) newArr2[newLayout[1] - OFFSET] = IGV_LEFT; 
+	if(newLayout[2] != 0) newArr2[newLayout[2] - OFFSET] = IGV_UP; 
+	if(newLayout[3] != 0) newArr2[newLayout[3] - OFFSET] = IGV_RIGHT; 
+	if(newLayout[4] != 0) newArr2[newLayout[4] - OFFSET] = IGV_DOWN; 
+	if(newLayout[5] != 0) newArr2[newLayout[5] - OFFSET] = IGV_WEAPONL; 
+	if(newLayout[6] != 0) newArr2[newLayout[6] - OFFSET] = IGV_ITEMS; 
+	if(newLayout[7] != 0) newArr2[newLayout[7] - OFFSET] = IGV_WEAPONR; 
+	if(newLayout[8] != 0) newArr2[newLayout[8] - OFFSET] = IGV_MAP; 
+	if(newLayout[9] != 0) newArr2[newLayout[9] - OFFSET] = IGV_SHOOT; 
+	if(newLayout[10] != 0) newArr2[newLayout[10] - OFFSET] = IGV_JUMP; 
+	if(newLayout[11] != 0) newArr2[newLayout[11] - OFFSET] = IGV_RESUME; 
+	if(newLayout[12] != 0) newArr2[newLayout[12] - OFFSET] = IGV_RESET; 
 
 	//debug();
 
@@ -273,6 +276,10 @@ const char* keyName(unsigned int wParam)
 {
 	switch(wParam)
 	{
+		// this is Backspace which we'll use to unbind keys
+		case 0x00:
+		case 0x08: return "<NONE>";
+
 		case 0x10: return "SHIFT";
 		case 0x11: return "CTRL";
 		case 0x12: return "ALT";
