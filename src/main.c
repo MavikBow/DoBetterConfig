@@ -26,7 +26,6 @@ HWND CreateListView(HINSTANCE, HWND);
 HWND CreateOtherControls(HWND);
 BOOL InitListView(HWND);
 BOOL InsertListViewItems(HWND);
-void HandleWM_NOTIFY(HWND, LPARAM);
 void changingControl(WPARAM);
 void resetAll();
 int handleApply(HWND);
@@ -35,63 +34,108 @@ int handleApply(HWND);
 
 LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if(takingControlInput == TRUE)
+		switch(uMsg)
+		{
+			case WM_LBUTTONDOWN:
+			case WM_RBUTTONDOWN:
+			case WM_SYSKEYDOWN:
+			case WM_KEYDOWN:
+			case WM_COMMAND:
+				changingControl(wParam);
+			break;
+
+			case WM_NOTIFY:
+			{
+				LPNMHDR lpnmh = (LPNMHDR)lParam;
+				if(lpnmh->code == (UINT)NM_CLICK || lpnmh->code == (UINT)NM_RCLICK)
+					changingControl(0x01);
+			}
+			break;
+
+			default:;
+		}
+	else // takingControlInput == FALSE here
+		switch(uMsg)
+		{
+			case WM_COMMAND:
+				switch(wParam)
+				{
+					case ID_RESETBUTTON:
+						resetAll();
+						break;
+
+					case ID_APPLYBUTTON:
+						handleApply(hWnd);
+						break;
+	
+					case ID_CANCELBUTTON:
+						DestroyWindow(hWnd);
+						break;
+	
+					case ID_BACKUPCHECKBOX:
+						{
+							UINT checked = IsDlgButtonChecked(hWnd, ID_BACKUPCHECKBOX);
+							if(checked) CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_UNCHECKED);
+							else CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_CHECKED);
+						}
+						break;
+	
+					case ID_RESETCHECKBOX:
+						{
+							UINT checked = IsDlgButtonChecked(hWnd, ID_RESETCHECKBOX);
+							if(checked) CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_UNCHECKED);
+							else CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_CHECKED);
+						}
+					break;
+
+				default:;
+			}
+			break;
+			case WM_NOTIFY:
+			{
+				LPNMHDR lpnmh = (LPNMHDR)lParam;
+				if(lpnmh->hwndFrom == hWndListView && lpnmh->idFrom == ID_LISTVIEW)
+				{
+					switch(lpnmh->code)
+					{
+						case (UINT)NM_CLICK:
+						case (UINT)NM_RCLICK:
+							{
+								int iItem = ListView_GetNextItem(hWndListView, (UINT)-1, LVNI_FOCUSED);
+								if(iItem != -1) 
+								{
+									// here we handle the input for control button
+									takingControlInput = TRUE;
+									ListView_SetItemText(hWndListView, (WPARAM)iItem, 1, "<Press any key>");
+									changingControlNumber = iItem;
+									SetFocus(hWnd);
+									break;
+								}
+							}
+						break;	
+						case LVN_ITEMCHANGED:
+						{
+			        		NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
+			        		if((pnmv->uChanged & LVIF_STATE) && (pnmv->uNewState & LVIS_SELECTED))
+			        		{
+			            		// The item just got selected, do something with it.
+			            		// pnmv->iItem is the index of the item that was just selected.
+								ListView_SetItemState(hWndListView,(UINT)pnmv->iItem, 0, LVIS_SELECTED);
+								printf("click %d from 2\n", pnmv->iItem);
+			        		}
+						}
+						break;
+					}
+				}
+			}
+			break;
+			default:;
+		}
+
+	// for common stuff
 	switch(uMsg)
 	{
-		case WM_LBUTTONDOWN:
-		case WM_RBUTTONDOWN:
-		case WM_SYSKEYDOWN:
-		case WM_KEYDOWN:
-			if(takingControlInput == TRUE)
-			{
-				changingControl(wParam);
-			}
-			break;
-
-		case WM_COMMAND:
-			if(takingControlInput == TRUE)
-			{
-				changingControl(wParam);
-				break;
-			}
-			switch(wParam)
-			{
-				case ID_RESETBUTTON:
-					resetAll();
-					break;
-
-				case ID_APPLYBUTTON:
-					handleApply(hWnd);
-					break;
-
-				case ID_CANCELBUTTON:
-					DestroyWindow(hWnd);
-					break;
-
-				case ID_BACKUPCHECKBOX:
-					{
-						UINT checked = IsDlgButtonChecked(hWnd, ID_BACKUPCHECKBOX);
-						if(checked) CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_UNCHECKED);
-						else CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_CHECKED);
-					}
-					break;
-
-				case ID_RESETCHECKBOX:
-					{
-						UINT checked = IsDlgButtonChecked(hWnd, ID_RESETCHECKBOX);
-						if(checked) CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_UNCHECKED);
-						else CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_CHECKED);
-					}
-					break;
-
-				default:
-					break;
-			}
-			break;
-
-		case WM_NOTIFY:
-			HandleWM_NOTIFY(hWnd, lParam);
-			break;
-
 		case WM_CREATE:
 			hWndListView = CreateListView(g_hInst, hWnd);
 			CreateOtherControls(hWnd);
@@ -113,10 +157,9 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			break;
-		default:
-			return DefWindowProcA(hWnd, uMsg, wParam, lParam);
+		default:;
 	}
-
+	
 	return DefWindowProcA(hWnd, uMsg, wParam, lParam);
 }
 
@@ -266,51 +309,6 @@ BOOL InsertListViewItems(HWND hwndListView)
 	}
 
 	return TRUE;
-}
-
-void HandleWM_NOTIFY(HWND hWnd, LPARAM lParam)
-{
-	LPNMHDR lpnmh = (LPNMHDR)lParam;
-	if(lpnmh->hwndFrom == hWndListView && lpnmh->idFrom == ID_LISTVIEW)
-	{
-		switch(lpnmh->code)
-		{
-			case (UINT)NM_CLICK:
-			case (UINT)NM_RCLICK:
-				{
-					int iItem = ListView_GetNextItem(hWndListView, (UINT)-1, LVNI_FOCUSED);
-					if(iItem != -1) 
-					{
-						if(takingControlInput == FALSE)
-						{
-							// here we handle the input for control button
-							takingControlInput = TRUE;
-							ListView_SetItemText(hWndListView, (WPARAM)iItem, 1, "<Press any key>");
-							changingControlNumber = iItem;
-							SetFocus(hWnd);
-							break;
-						}
-						else
-							changingControl(0x01);
-					}
-				}
-			break;	
-			/*
-			case LVN_ITEMCHANGED:
-			{
-        		NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
-        		if((pnmv->uChanged & LVIF_STATE) && (pnmv->uNewState & LVIS_SELECTED))
-        		{
-            		// The item just got selected, do something with it.
-            		// pnmv->iItem is the index of the item that was just selected.
-					ListView_SetItemState(hWndListView,(UINT)pnmv->iItem, 0, LVIS_SELECTED);
-					printf("click %d\n", pnmv->iItem);
-        		}
-			}
-			break;
-			*/
-		}
-	}
 }
 
 HWND CreateOtherControls(HWND hWndParent)
