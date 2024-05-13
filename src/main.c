@@ -97,10 +97,30 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				LPNMHDR lpnmh = (LPNMHDR)lParam;
 				if(lpnmh->hwndFrom == hWndListView && lpnmh->idFrom == ID_LISTVIEW)
 				{
+					int isTriggerPressed = FALSE;
 					switch(lpnmh->code)
 					{
 						case (UINT)NM_CLICK:
 						case (UINT)NM_RCLICK:
+							isTriggerPressed = TRUE;
+						break;	
+						case LVN_ITEMACTIVATE:
+							printf("item activate triggered\n");
+						break;
+						case LVN_ITEMCHANGED:
+						{
+			        		NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
+			        		if((pnmv->uChanged & LVIF_STATE) && (pnmv->uNewState & LVIS_SELECTED))
+			        		{
+			            		// The item just got selected, do something with it.
+			            		// pnmv->iItem is the index of the item that was just selected.
+								//ListView_SetItemState(hWndListView,(UINT)pnmv->iItem, 0, LVIS_SELECTED);
+								//printf("click %d from 2\n", pnmv->iItem);
+			        		}
+						}
+						break;
+					}
+					if(isTriggerPressed)
 							{
 								int iItem = ListView_GetNextItem(hWndListView, (UINT)-1, LVNI_FOCUSED);
 								if(iItem != -1) 
@@ -113,20 +133,6 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 									break;
 								}
 							}
-						break;	
-						case LVN_ITEMCHANGED:
-						{
-			        		NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
-			        		if((pnmv->uChanged & LVIF_STATE) && (pnmv->uNewState & LVIS_SELECTED))
-			        		{
-			            		// The item just got selected, do something with it.
-			            		// pnmv->iItem is the index of the item that was just selected.
-								ListView_SetItemState(hWndListView,(UINT)pnmv->iItem, 0, LVIS_SELECTED);
-								printf("click %d from 2\n", pnmv->iItem);
-			        		}
-						}
-						break;
-					}
 				}
 			}
 			break;
@@ -240,8 +246,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	MSG msg;
 	while(GetMessage(&msg, NULL, 0, 0) > 0)
 	{
-		TranslateMessage(&msg);
-		DispatchMessageA(&msg);
+		if(!IsDialogMessage(hWindow, &msg) || takingControlInput == TRUE)
+		{
+			TranslateMessage(&msg);
+			DispatchMessageA(&msg);
+		}
 	}
 
 	DeleteObject(hbr);
