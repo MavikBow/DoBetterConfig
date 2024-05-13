@@ -132,7 +132,35 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 			default:;
 		}
-
+	
+// for coloring the list like a zebra
+	if(uMsg == WM_NOTIFY)
+	{
+		LPNMHDR nmh = (LPNMHDR)lParam;
+        if (nmh->code == (UINT)NM_CUSTOMDRAW && nmh->idFrom == ID_LISTVIEW)
+        {
+       		 LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
+                switch(lplvcd->nmcd.dwDrawStage)
+                {
+                    case CDDS_PREPAINT:
+                        return CDRF_NOTIFYITEMDRAW;
+                    case CDDS_ITEMPREPAINT:
+                    {
+                        // Change item background color based on its index
+                        if (lplvcd->nmcd.dwItemSpec % 2 == 0)
+                        {
+                            lplvcd->clrTextBk = RGB(0xff, 0xff, 0xff); // White background for even items
+                        }
+                        else
+                        {
+                            lplvcd->clrTextBk = RGB(0xf5, 0xf5, 0xf5); // Light Gray background for odd items
+                        }
+                        return CDRF_DODEFAULT;
+                    }
+                }
+            }
+	}
+	
 	// for common stuff
 	switch(uMsg)
 	{
