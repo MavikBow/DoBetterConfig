@@ -15,6 +15,9 @@
 #define ID_RESETCHECKBOX 2005
 
 HWND hWndListView;
+WNDPROC g_OldListViewProc; // Stores the original listview procedure
+int isTriggerPressed = FALSE;
+
 HINSTANCE g_hInst;
 TCHAR versionLabel[20] = "Version: 1.0.0";
 HFONT hFont;
@@ -26,72 +29,183 @@ HWND CreateListView(HINSTANCE, HWND);
 HWND CreateOtherControls(HWND);
 BOOL InitListView(HWND);
 BOOL InsertListViewItems(HWND);
-void HandleWM_NOTIFY(HWND, LPARAM);
 void changingControl(WPARAM);
 void resetAll();
 int handleApply(HWND);
+
+// New listview procedure
+
+LRESULT CALLBACK NewListViewProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if(takingControlInput == FALSE)
+		if(uMsg == WM_GETDLGCODE)
+		{
+			if (lParam && ((MSG*)lParam)->message == WM_KEYDOWN)
+			{
+				WPARAM nVirtKey = ((MSG*)lParam)->wParam;
+
+				switch (nVirtKey) 
+				{
+					case VK_RETURN:
+					case VK_SPACE:
+						{
+							isTriggerPressed = TRUE;
+							return DLGC_WANTALLKEYS;
+						}
+				}
+			}
+		}
+
+	return CallWindowProc(g_OldListViewProc, hWnd, uMsg, wParam, lParam);
+}
 
 // Is called by the message loop
 
 LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if(takingControlInput == TRUE)
+		switch(uMsg)
+		{
+			case WM_LBUTTONDOWN:
+			case WM_RBUTTONDOWN:
+			case WM_SYSKEYDOWN:
+			case WM_KEYDOWN:
+			case WM_COMMAND:
+				changingControl(wParam);
+			break;
+
+			case WM_NOTIFY:
+			{
+				LPNMHDR lpnmh = (LPNMHDR)lParam;
+				if(lpnmh->code == (UINT)NM_CLICK || lpnmh->code == (UINT)NM_RCLICK)
+					changingControl(0x01);
+			}
+			break;
+
+			default:;
+		}
+	else // takingControlInput == FALSE here
+		switch(uMsg)
+		{
+			case WM_COMMAND:
+				switch(wParam)
+				{
+					case ID_RESETBUTTON:
+						resetAll();
+						break;
+
+					case ID_APPLYBUTTON:
+						{
+							if(handleApply(hWnd) == 0)
+							{
+								MessageBeep(MB_OK);
+								MessageBox(hWnd, "Applied successfully!", "Success", MB_OK);
+							}
+							SetFocus(GetDlgItem(hWnd, ID_APPLYBUTTON));
+						}
+						break;
+	
+					case ID_CANCELBUTTON:
+						DestroyWindow(hWnd);
+						break;
+	
+					case ID_BACKUPCHECKBOX:
+						{
+							UINT checked = IsDlgButtonChecked(hWnd, ID_BACKUPCHECKBOX);
+							if(checked) CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_UNCHECKED);
+							else CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_CHECKED);
+						}
+						break;
+	
+					case ID_RESETCHECKBOX:
+						{
+							UINT checked = IsDlgButtonChecked(hWnd, ID_RESETCHECKBOX);
+							if(checked) CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_UNCHECKED);
+							else CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_CHECKED);
+						}
+					break;
+
+				default:;
+			}
+			break;
+			case WM_NOTIFY:
+			{
+				LPNMHDR lpnmh = (LPNMHDR)lParam;
+				if(lpnmh->hwndFrom == hWndListView && lpnmh->idFrom == ID_LISTVIEW)
+				{
+					switch(lpnmh->code)
+					{
+						case (UINT)NM_CLICK:
+						case (UINT)NM_RCLICK:
+							isTriggerPressed = TRUE;
+						break;	
+						case LVN_ITEMACTIVATE:
+							printf("item activate triggered\n");
+						break;
+						case LVN_ITEMCHANGED:
+						{
+			        		NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
+			        		if((pnmv->uChanged & LVIF_STATE) && (pnmv->uNewState & LVIS_SELECTED))
+			        		{
+			            		// The item just got selected, do something with it.
+			            		// pnmv->iItem is the index of the item that was just selected.
+								//ListView_SetItemState(hWndListView,(UINT)pnmv->iItem, 0, LVIS_SELECTED);
+								//printf("click %d from 2\n", pnmv->iItem);
+			        		}
+						}
+						break;
+					}
+					if(isTriggerPressed)
+							{
+								int iItem = ListView_GetNextItem(hWndListView, (UINT)-1, LVNI_FOCUSED);
+								if(iItem != -1) 
+								{
+									// here we handle the input for control button
+									takingControlInput = TRUE;
+									isTriggerPressed = FALSE;
+									ListView_SetItemText(hWndListView, (WPARAM)iItem, 1, "<Press any key>");
+									changingControlNumber = iItem;
+									SetFocus(hWnd);
+									break;
+								}
+							}
+				}
+			}
+			break;
+			default:;
+		}
+	
+// for coloring the list like a zebra
+	if(uMsg == WM_NOTIFY)
+	{
+		LPNMHDR nmh = (LPNMHDR)lParam;
+        if (nmh->code == (UINT)NM_CUSTOMDRAW && nmh->idFrom == ID_LISTVIEW)
+        {
+       		 LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
+                switch(lplvcd->nmcd.dwDrawStage)
+                {
+                    case CDDS_PREPAINT:
+                        return CDRF_NOTIFYITEMDRAW;
+                    case CDDS_ITEMPREPAINT:
+                    {
+                        // Change item background color based on its index
+                        if (lplvcd->nmcd.dwItemSpec % 2 == 0)
+                        {
+                            lplvcd->clrTextBk = RGB(0xff, 0xff, 0xff); // White background for even items
+                        }
+                        else
+                        {
+                            lplvcd->clrTextBk = RGB(0xf5, 0xf5, 0xf5); // Light Gray background for odd items
+                        }
+                        return CDRF_DODEFAULT;
+                    }
+                }
+            }
+	}
+	
+	// for common stuff
 	switch(uMsg)
 	{
-		case WM_LBUTTONDOWN:
-		case WM_RBUTTONDOWN:
-		case WM_SYSKEYDOWN:
-		case WM_KEYDOWN:
-			if(takingControlInput == TRUE)
-			{
-				changingControl(wParam);
-			}
-			break;
-
-		case WM_COMMAND:
-			if(takingControlInput == TRUE)
-			{
-				changingControl(wParam);
-				break;
-			}
-			switch(wParam)
-			{
-				case ID_RESETBUTTON:
-					resetAll();
-					break;
-
-				case ID_APPLYBUTTON:
-					handleApply(hWnd);
-					break;
-
-				case ID_CANCELBUTTON:
-					DestroyWindow(hWnd);
-					break;
-
-				case ID_BACKUPCHECKBOX:
-					{
-						UINT checked = IsDlgButtonChecked(hWnd, ID_BACKUPCHECKBOX);
-						if(checked) CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_UNCHECKED);
-						else CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_CHECKED);
-					}
-					break;
-
-				case ID_RESETCHECKBOX:
-					{
-						UINT checked = IsDlgButtonChecked(hWnd, ID_RESETCHECKBOX);
-						if(checked) CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_UNCHECKED);
-						else CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_CHECKED);
-					}
-					break;
-
-				default:
-					break;
-			}
-			break;
-
-		case WM_NOTIFY:
-			HandleWM_NOTIFY(hWnd, lParam);
-			break;
-
 		case WM_CREATE:
 			hWndListView = CreateListView(g_hInst, hWnd);
 			CreateOtherControls(hWnd);
@@ -113,10 +227,9 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			break;
-		default:
-			return DefWindowProcA(hWnd, uMsg, wParam, lParam);
+		default:;
 	}
-
+	
 	return DefWindowProcA(hWnd, uMsg, wParam, lParam);
 }
 
@@ -169,8 +282,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	MSG msg;
 	while(GetMessage(&msg, NULL, 0, 0) > 0)
 	{
-		TranslateMessage(&msg);
-		DispatchMessageA(&msg);
+		if(!IsDialogMessage(hWindow, &msg) || takingControlInput == TRUE)
+		{
+			TranslateMessage(&msg);
+			DispatchMessageA(&msg);
+		}
 	}
 
 	DeleteObject(hbr);
@@ -195,6 +311,10 @@ HWND CreateListView(HINSTANCE hInstance, HWND hWndParent)
 			NULL);
 
 	if(!hWndListView) return NULL;
+
+	// Subclass the listview
+	
+	g_OldListViewProc = (WNDPROC)SetWindowLongPtr(hWndListView, GWLP_WNDPROC, (LONG_PTR)NewListViewProc);
 
 	ListView_SetExtendedListViewStyle(hWndListView, LVS_EX_FULLROWSELECT | LVS_EX_ONECLICKACTIVATE);
 
@@ -268,51 +388,6 @@ BOOL InsertListViewItems(HWND hwndListView)
 	return TRUE;
 }
 
-void HandleWM_NOTIFY(HWND hWnd, LPARAM lParam)
-{
-	LPNMHDR lpnmh = (LPNMHDR)lParam;
-	if(lpnmh->hwndFrom == hWndListView && lpnmh->idFrom == ID_LISTVIEW)
-	{
-		switch(lpnmh->code)
-		{
-			case (UINT)NM_CLICK:
-			case (UINT)NM_RCLICK:
-				{
-					int iItem = ListView_GetNextItem(hWndListView, (UINT)-1, LVNI_FOCUSED);
-					if(iItem != -1) 
-					{
-						if(takingControlInput == FALSE)
-						{
-							// here we handle the input for control button
-							takingControlInput = TRUE;
-							ListView_SetItemText(hWndListView, (WPARAM)iItem, 1, "<Press any key>");
-							changingControlNumber = iItem;
-							SetFocus(hWnd);
-							break;
-						}
-						else
-							changingControl(0x01);
-					}
-				}
-			break;	
-			/*
-			case LVN_ITEMCHANGED:
-			{
-        		NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
-        		if((pnmv->uChanged & LVIF_STATE) && (pnmv->uNewState & LVIS_SELECTED))
-        		{
-            		// The item just got selected, do something with it.
-            		// pnmv->iItem is the index of the item that was just selected.
-					ListView_SetItemState(hWndListView,(UINT)pnmv->iItem, 0, LVIS_SELECTED);
-					printf("click %d\n", pnmv->iItem);
-        		}
-			}
-			break;
-			*/
-		}
-	}
-}
-
 HWND CreateOtherControls(HWND hWndParent)
 {
 	// Create a font to use with the version label
@@ -328,6 +403,30 @@ HWND CreateOtherControls(HWND hWndParent)
 		 DEFAULT_QUALITY,
 		 DEFAULT_PITCH | FF_SWISS,
 		 "Segoe UI");
+
+	HWND hCheckBox_BackupDoukutsu = CreateWindowA(
+			WC_BUTTONA,
+			"Backup Doukutsu.exe",
+			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
+			325, 25, 115, 40,
+			hWndParent,
+			(HMENU)ID_BACKUPCHECKBOX,
+			NULL,
+			NULL);
+
+	if(!hCheckBox_BackupDoukutsu) return NULL;
+
+	HWND hCheckBox_ResetConfig = CreateWindowA(
+			WC_BUTTONA,
+			"Reset Config.dat",
+			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
+			325, 70, 115, 40,
+			hWndParent,
+			(HMENU)ID_RESETCHECKBOX,
+			NULL,
+			NULL);
+
+	if(!hCheckBox_ResetConfig) return NULL;
 
 	HWND hButton_Reset = CreateWindowA(
 			WC_BUTTONA,
@@ -364,30 +463,6 @@ HWND CreateOtherControls(HWND hWndParent)
 			NULL);
 
 	if(!hButton_Cancel) return NULL;
-
-	HWND hCheckBox_BackupDoukutsu = CreateWindowA(
-			WC_BUTTONA,
-			"Backup Doukutsu.exe",
-			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
-			325, 25, 115, 40,
-			hWndParent,
-			(HMENU)ID_BACKUPCHECKBOX,
-			NULL,
-			NULL);
-
-	if(!hCheckBox_BackupDoukutsu) return NULL;
-
-	HWND hCheckBox_ResetConfig = CreateWindowA(
-			WC_BUTTONA,
-			"Reset Config.dat",
-			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
-			325, 70, 115, 40,
-			hWndParent,
-			(HMENU)ID_RESETCHECKBOX,
-			NULL,
-			NULL);
-
-	if(!hCheckBox_ResetConfig) return NULL;
 
 	HWND hStatic_VersionLabel = CreateWindowA(
 			WC_STATIC,
@@ -507,6 +582,6 @@ int handleApply(HWND hWnd)
 		MessageBox(hWnd, "There was trouble with writing into Doukutsu.exe", NULL, MB_OK);
 		return -1;
 	}
-
+	
 	return 0;
 }
