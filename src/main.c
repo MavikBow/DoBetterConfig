@@ -87,12 +87,6 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	else // takingControlInput == FALSE here
 		switch(uMsg)
 		{
-			case WM_KEYDOWN:
-				{
-					if(wParam == VK_RETURN)
-						printf("got is\n");
-				}
-				break;
 			case WM_COMMAND:
 				switch(wParam)
 				{
@@ -101,7 +95,14 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						break;
 
 					case ID_APPLYBUTTON:
-						handleApply(hWnd);
+						{
+							if(handleApply(hWnd) == 0)
+							{
+								MessageBeep(MB_OK);
+								MessageBox(hWnd, "Applied successfully!", "Success", MB_OK);
+							}
+							SetFocus(GetDlgItem(hWnd, ID_APPLYBUTTON));
+						}
 						break;
 	
 					case ID_CANCELBUTTON:
@@ -581,6 +582,6 @@ int handleApply(HWND hWnd)
 		MessageBox(hWnd, "There was trouble with writing into Doukutsu.exe", NULL, MB_OK);
 		return -1;
 	}
-
+	
 	return 0;
 }
