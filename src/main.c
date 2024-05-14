@@ -19,7 +19,7 @@ WNDPROC g_OldListViewProc; // Stores the original listview procedure
 int isTriggerPressed = FALSE;
 
 HINSTANCE g_hInst;
-TCHAR versionLabel[20] = "Version: 1.0.0";
+TCHAR versionLabel[20] = "Version: 1.1.0";
 HFONT hFont;
 
 BOOL takingControlInput;
