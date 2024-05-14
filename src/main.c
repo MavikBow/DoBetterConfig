@@ -72,15 +72,15 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case WM_KEYDOWN:
 			case WM_COMMAND:
 				changingControl(wParam);
-			break;
+				break;
 
 			case WM_NOTIFY:
-			{
-				LPNMHDR lpnmh = (LPNMHDR)lParam;
-				if(lpnmh->code == (UINT)NM_CLICK || lpnmh->code == (UINT)NM_RCLICK)
-					changingControl(0x01);
-			}
-			break;
+				{
+					LPNMHDR lpnmh = (LPNMHDR)lParam;
+					if(lpnmh->code == (UINT)NM_CLICK || lpnmh->code == (UINT)NM_RCLICK)
+						changingControl(0x01);
+				}
+				break;
 
 			default:;
 		}
@@ -104,11 +104,11 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 							SetFocus(GetDlgItem(hWnd, ID_APPLYBUTTON));
 						}
 						break;
-	
+
 					case ID_CANCELBUTTON:
 						DestroyWindow(hWnd);
 						break;
-	
+
 					case ID_BACKUPCHECKBOX:
 						{
 							UINT checked = IsDlgButtonChecked(hWnd, ID_BACKUPCHECKBOX);
@@ -116,93 +116,93 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 							else CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_CHECKED);
 						}
 						break;
-	
+
 					case ID_RESETCHECKBOX:
 						{
 							UINT checked = IsDlgButtonChecked(hWnd, ID_RESETCHECKBOX);
 							if(checked) CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_UNCHECKED);
 							else CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_CHECKED);
 						}
-					break;
+						break;
 
-				default:;
-			}
-			break;
-			case WM_NOTIFY:
-			{
-				LPNMHDR lpnmh = (LPNMHDR)lParam;
-				if(lpnmh->hwndFrom == hWndListView && lpnmh->idFrom == ID_LISTVIEW)
-				{
-					switch(lpnmh->code)
-					{
-						case (UINT)NM_CLICK:
-						case (UINT)NM_RCLICK:
-							isTriggerPressed = TRUE;
-						break;	
-						case LVN_ITEMACTIVATE:
-							printf("item activate triggered\n");
-						break;
-						case LVN_ITEMCHANGED:
-						{
-			        		NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
-			        		if((pnmv->uChanged & LVIF_STATE) && (pnmv->uNewState & LVIS_SELECTED))
-			        		{
-			            		// The item just got selected, do something with it.
-			            		// pnmv->iItem is the index of the item that was just selected.
-								//ListView_SetItemState(hWndListView,(UINT)pnmv->iItem, 0, LVIS_SELECTED);
-								//printf("click %d from 2\n", pnmv->iItem);
-			        		}
-						}
-						break;
-					}
-					if(isTriggerPressed)
-							{
-								int iItem = ListView_GetNextItem(hWndListView, (UINT)-1, LVNI_FOCUSED);
-								if(iItem != -1) 
-								{
-									// here we handle the input for control button
-									takingControlInput = TRUE;
-									isTriggerPressed = FALSE;
-									ListView_SetItemText(hWndListView, (WPARAM)iItem, 1, "<Press any key>");
-									changingControlNumber = iItem;
-									SetFocus(hWnd);
-									break;
-								}
-							}
+					default:;
 				}
-			}
-			break;
+				break;
+			case WM_NOTIFY:
+				{
+					LPNMHDR lpnmh = (LPNMHDR)lParam;
+					if(lpnmh->hwndFrom == hWndListView && lpnmh->idFrom == ID_LISTVIEW)
+					{
+						switch(lpnmh->code)
+						{
+							case (UINT)NM_CLICK:
+							case (UINT)NM_RCLICK:
+								isTriggerPressed = TRUE;
+								break;	
+							case LVN_ITEMACTIVATE:
+								printf("item activate triggered\n");
+								break;
+							case LVN_ITEMCHANGED:
+								{
+									NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
+									if((pnmv->uChanged & LVIF_STATE) && (pnmv->uNewState & LVIS_SELECTED))
+									{
+										// The item just got selected, do something with it.
+										// pnmv->iItem is the index of the item that was just selected.
+										//ListView_SetItemState(hWndListView,(UINT)pnmv->iItem, 0, LVIS_SELECTED);
+										//printf("click %d from 2\n", pnmv->iItem);
+									}
+								}
+								break;
+						}
+						if(isTriggerPressed)
+						{
+							int iItem = ListView_GetNextItem(hWndListView, (UINT)-1, LVNI_FOCUSED);
+							if(iItem != -1) 
+							{
+								// here we handle the input for control button
+								takingControlInput = TRUE;
+								isTriggerPressed = FALSE;
+								ListView_SetItemText(hWndListView, (WPARAM)iItem, 1, "<Press any key>");
+								changingControlNumber = iItem;
+								SetFocus(hWnd);
+								break;
+							}
+						}
+					}
+				}
+				break;
 			default:;
 		}
-	
-// for coloring the list like a zebra
+
+	// for coloring the list like a zebra
 	if(uMsg == WM_NOTIFY)
 	{
 		LPNMHDR nmh = (LPNMHDR)lParam;
-        if (nmh->code == (UINT)NM_CUSTOMDRAW && nmh->idFrom == ID_LISTVIEW)
-        {
-       		 LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
-                switch(lplvcd->nmcd.dwDrawStage)
-                {
-                    case CDDS_PREPAINT:
-                        return CDRF_NOTIFYITEMDRAW;
-                    case CDDS_ITEMPREPAINT:
-                    {
-                        // Change item background color based on its index
-                        if (lplvcd->nmcd.dwItemSpec % 2 == 0)
-                        {
-                            lplvcd->clrTextBk = RGB(0xff, 0xff, 0xff); // White background for even items
-                        }
-                        else
-                        {
-                            lplvcd->clrTextBk = RGB(0xf5, 0xf5, 0xf5); // Light Gray background for odd items
-                        }
-                        return CDRF_DODEFAULT;
-                    }
-                }
-            }
+		if (nmh->code == (UINT)NM_CUSTOMDRAW && nmh->idFrom == ID_LISTVIEW)
+		{
+			LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
+			switch(lplvcd->nmcd.dwDrawStage)
+			{
+				case CDDS_PREPAINT:
+					return CDRF_NOTIFYITEMDRAW;
+				case CDDS_ITEMPREPAINT:
+					{
+						// Change item background color based on its index
+						if (lplvcd->nmcd.dwItemSpec % 2 == 0)
+						{
+							lplvcd->clrTextBk = RGB(0xff, 0xff, 0xff); // White background for even items
+						}
+						else
+						{
+							lplvcd->clrTextBk = RGB(0xf5, 0xf5, 0xf5); // Light Gray background for odd items
+						}
+						return CDRF_DODEFAULT;
+					}
+			}
+		}
 	}
-	
+
 	// for common stuff
 	switch(uMsg)
 	{
@@ -229,7 +229,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 		default:;
 	}
-	
+
 	return DefWindowProcA(hWnd, uMsg, wParam, lParam);
 }
 
@@ -264,11 +264,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		return -1;
 
 	// Create the window
-	
+
 	HWND hWindow = CreateWindowA (
 			className, 
 			"DoBetterConfig.exe",
-		   	WS_MINIMIZEBOX | WS_CAPTION | WS_POPUPWINDOW | WS_SYSMENU,
+			WS_MINIMIZEBOX | WS_CAPTION | WS_POPUPWINDOW | WS_SYSMENU,
 			(int)((GetSystemMetrics(SM_CXFULLSCREEN) - window_width) >> 1),
 			(int)((GetSystemMetrics(SM_CYFULLSCREEN) - window_height) >> 1),
 			window_width, window_height,
@@ -313,7 +313,7 @@ HWND CreateListView(HINSTANCE hInstance, HWND hWndParent)
 	if(!hWndListView) return NULL;
 
 	// Subclass the listview
-	
+
 	g_OldListViewProc = (WNDPROC)SetWindowLongPtr(hWndListView, GWLP_WNDPROC, (LONG_PTR)NewListViewProc);
 
 	ListView_SetExtendedListViewStyle(hWndListView, LVS_EX_FULLROWSELECT | LVS_EX_ONECLICKACTIVATE);
@@ -371,7 +371,7 @@ BOOL InsertListViewItems(HWND hwndListView)
 
 	for(int i = 0; i < 13; i++) strcpy(szString[i][0], retrieveKeyName1(i));
 	for(int i = 0; i < 13; i++) strcpy(szString[i][1], retrieveKeyName2(i));
-	
+
 	// initialize the item
 	lvItem.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 	lvItem.stateMask = 0;
@@ -478,48 +478,48 @@ HWND CreateOtherControls(HWND hWndParent)
 	SendMessage(hStatic_VersionLabel, WM_SETFONT, (WPARAM)hFont, TRUE);
 
 	// Create the tooltip controls
-	
-    HWND hTooltip_BackupDoukutsu = CreateWindowA
-		(TOOLTIPS_CLASS,
-		NULL, 
-    	WS_POPUP | TTS_ALWAYSTIP, // Always display the tooltip
-    	(int)CW_USEDEFAULT, (int)CW_USEDEFAULT, (int)CW_USEDEFAULT, (int)CW_USEDEFAULT,
-    	hWndParent,
-		NULL, 
-		g_hInst, 
-		NULL);
 
-    // Associate the tooltip with the hCheckBox_BackupDoukutsu window
-    TOOLINFO toolInfo1 = { 0 };
-    toolInfo1.cbSize = sizeof(TOOLINFO);
-    toolInfo1.hwnd = hWndParent;
-    toolInfo1.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
-    toolInfo1.uId = (UINT_PTR)hCheckBox_BackupDoukutsu;
-    toolInfo1.lpszText = "Creates a Doukutsu_backup.exe file with default settings";
-    SendMessage(hTooltip_BackupDoukutsu, TTM_ADDTOOL, 0, (LPARAM)&toolInfo1);
-    SendMessage(hTooltip_BackupDoukutsu, TTM_SETDELAYTIME, TTDT_AUTOPOP, 6000);
-	
-    HWND hTooltip_ResetConfig = CreateWindowA
+	HWND hTooltip_BackupDoukutsu = CreateWindowA
 		(TOOLTIPS_CLASS,
-		NULL,
-    	WS_POPUP | TTS_ALWAYSTIP, // Always display the tooltip
-    	(int)CW_USEDEFAULT, (int)CW_USEDEFAULT, (int)CW_USEDEFAULT, (int)CW_USEDEFAULT,
-		hWndParent,
-		NULL,
-		g_hInst, 
-		NULL);
+		 NULL, 
+		 WS_POPUP | TTS_ALWAYSTIP, // Always display the tooltip
+		 (int)CW_USEDEFAULT, (int)CW_USEDEFAULT, (int)CW_USEDEFAULT, (int)CW_USEDEFAULT,
+		 hWndParent,
+		 NULL, 
+		 g_hInst, 
+		 NULL);
+
+	// Associate the tooltip with the hCheckBox_BackupDoukutsu window
+	TOOLINFO toolInfo1 = { 0 };
+	toolInfo1.cbSize = sizeof(TOOLINFO);
+	toolInfo1.hwnd = hWndParent;
+	toolInfo1.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
+	toolInfo1.uId = (UINT_PTR)hCheckBox_BackupDoukutsu;
+	toolInfo1.lpszText = "Creates a Doukutsu_backup.exe file with default settings";
+	SendMessage(hTooltip_BackupDoukutsu, TTM_ADDTOOL, 0, (LPARAM)&toolInfo1);
+	SendMessage(hTooltip_BackupDoukutsu, TTM_SETDELAYTIME, TTDT_AUTOPOP, 6000);
+
+	HWND hTooltip_ResetConfig = CreateWindowA
+		(TOOLTIPS_CLASS,
+		 NULL,
+		 WS_POPUP | TTS_ALWAYSTIP, // Always display the tooltip
+		 (int)CW_USEDEFAULT, (int)CW_USEDEFAULT, (int)CW_USEDEFAULT, (int)CW_USEDEFAULT,
+		 hWndParent,
+		 NULL,
+		 g_hInst, 
+		 NULL);
 
 	if(!hTooltip_ResetConfig) return NULL;
 
-    // Associate the tooltip with the hCheckBox_ResetConfig window
-    TOOLINFO toolInfo2 = { 0 };
-    toolInfo2.cbSize = sizeof(TOOLINFO);
-    toolInfo2.hwnd = hWndParent;
-    toolInfo2.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
-    toolInfo2.uId = (UINT_PTR)hCheckBox_ResetConfig;
-    toolInfo2.lpszText = "Resets the radiobutton options from DoConfig.exe (Recommended)";
-    SendMessage(hTooltip_ResetConfig, TTM_ADDTOOL, 0, (LPARAM)&toolInfo2);
-    SendMessage(hTooltip_ResetConfig, TTM_SETDELAYTIME, TTDT_AUTOPOP, 7000);
+	// Associate the tooltip with the hCheckBox_ResetConfig window
+	TOOLINFO toolInfo2 = { 0 };
+	toolInfo2.cbSize = sizeof(TOOLINFO);
+	toolInfo2.hwnd = hWndParent;
+	toolInfo2.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
+	toolInfo2.uId = (UINT_PTR)hCheckBox_ResetConfig;
+	toolInfo2.lpszText = "Resets the radiobutton options from DoConfig.exe (Recommended)";
+	SendMessage(hTooltip_ResetConfig, TTM_ADDTOOL, 0, (LPARAM)&toolInfo2);
+	SendMessage(hTooltip_ResetConfig, TTM_SETDELAYTIME, TTDT_AUTOPOP, 7000);
 
 	return hButton_Reset;
 }
@@ -582,6 +582,6 @@ int handleApply(HWND hWnd)
 		MessageBox(hWnd, "There was trouble with writing into Doukutsu.exe", NULL, MB_OK);
 		return -1;
 	}
-	
+
 	return 0;
 }
