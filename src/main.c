@@ -87,6 +87,12 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	else // takingControlInput == FALSE here
 		switch(uMsg)
 		{
+			case WM_KEYDOWN:
+				{
+					if(wParam == VK_RETURN)
+						printf("got is\n");
+				}
+				break;
 			case WM_COMMAND:
 				switch(wParam)
 				{
@@ -397,6 +403,30 @@ HWND CreateOtherControls(HWND hWndParent)
 		 DEFAULT_PITCH | FF_SWISS,
 		 "Segoe UI");
 
+	HWND hCheckBox_BackupDoukutsu = CreateWindowA(
+			WC_BUTTONA,
+			"Backup Doukutsu.exe",
+			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
+			325, 25, 115, 40,
+			hWndParent,
+			(HMENU)ID_BACKUPCHECKBOX,
+			NULL,
+			NULL);
+
+	if(!hCheckBox_BackupDoukutsu) return NULL;
+
+	HWND hCheckBox_ResetConfig = CreateWindowA(
+			WC_BUTTONA,
+			"Reset Config.dat",
+			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
+			325, 70, 115, 40,
+			hWndParent,
+			(HMENU)ID_RESETCHECKBOX,
+			NULL,
+			NULL);
+
+	if(!hCheckBox_ResetConfig) return NULL;
+
 	HWND hButton_Reset = CreateWindowA(
 			WC_BUTTONA,
 			"Reset All",
@@ -432,30 +462,6 @@ HWND CreateOtherControls(HWND hWndParent)
 			NULL);
 
 	if(!hButton_Cancel) return NULL;
-
-	HWND hCheckBox_BackupDoukutsu = CreateWindowA(
-			WC_BUTTONA,
-			"Backup Doukutsu.exe",
-			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
-			325, 25, 115, 40,
-			hWndParent,
-			(HMENU)ID_BACKUPCHECKBOX,
-			NULL,
-			NULL);
-
-	if(!hCheckBox_BackupDoukutsu) return NULL;
-
-	HWND hCheckBox_ResetConfig = CreateWindowA(
-			WC_BUTTONA,
-			"Reset Config.dat",
-			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
-			325, 70, 115, 40,
-			hWndParent,
-			(HMENU)ID_RESETCHECKBOX,
-			NULL,
-			NULL);
-
-	if(!hCheckBox_ResetConfig) return NULL;
 
 	HWND hStatic_VersionLabel = CreateWindowA(
 			WC_STATIC,
