@@ -15,6 +15,9 @@
 #define ID_RESETCHECKBOX 2005
 
 HWND hWndListView;
+WNDPROC g_OldListViewProc; // Stores the original listview procedure
+int isTriggerPressed = FALSE;
+
 HINSTANCE g_hInst;
 TCHAR versionLabel[20] = "Version: 1.0.0";
 HFONT hFont;
@@ -29,6 +32,32 @@ BOOL InsertListViewItems(HWND);
 void changingControl(WPARAM);
 void resetAll();
 int handleApply(HWND);
+
+// New listview procedure
+
+LRESULT CALLBACK NewListViewProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if(takingControlInput == FALSE)
+		if(uMsg == WM_GETDLGCODE)
+		{
+			if (lParam && ((MSG*)lParam)->message == WM_KEYDOWN)
+			{
+				WPARAM nVirtKey = ((MSG*)lParam)->wParam;
+
+				switch (nVirtKey) 
+				{
+					case VK_RETURN:
+					case VK_SPACE:
+						{
+							isTriggerPressed = TRUE;
+							return DLGC_WANTALLKEYS;
+						}
+				}
+			}
+		}
+
+	return CallWindowProc(g_OldListViewProc, hWnd, uMsg, wParam, lParam);
+}
 
 // Is called by the message loop
 
@@ -97,7 +126,6 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				LPNMHDR lpnmh = (LPNMHDR)lParam;
 				if(lpnmh->hwndFrom == hWndListView && lpnmh->idFrom == ID_LISTVIEW)
 				{
-					int isTriggerPressed = FALSE;
 					switch(lpnmh->code)
 					{
 						case (UINT)NM_CLICK:
@@ -127,6 +155,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 								{
 									// here we handle the input for control button
 									takingControlInput = TRUE;
+									isTriggerPressed = FALSE;
 									ListView_SetItemText(hWndListView, (WPARAM)iItem, 1, "<Press any key>");
 									changingControlNumber = iItem;
 									SetFocus(hWnd);
@@ -275,6 +304,10 @@ HWND CreateListView(HINSTANCE hInstance, HWND hWndParent)
 			NULL);
 
 	if(!hWndListView) return NULL;
+
+	// Subclass the listview
+	
+	g_OldListViewProc = (WNDPROC)SetWindowLongPtr(hWndListView, GWLP_WNDPROC, (LONG_PTR)NewListViewProc);
 
 	ListView_SetExtendedListViewStyle(hWndListView, LVS_EX_FULLROWSELECT | LVS_EX_ONECLICKACTIVATE);
 
