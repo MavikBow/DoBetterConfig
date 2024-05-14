@@ -24,11 +24,13 @@ Have you been tired of trying to beat Cave Story with the annoying default setti
 
 ## How to use the app?
 
-In order to use this app, you need to either download the `DoBetterConfig.exe` or compile it yourself. Then, simply put it in the same folder where you have `Doukutsu.exe` and you're good to go. Upon opening the app, you'll be greeted with a small window with a list of controls and keys responsible for them.
+To use this app, first either download the `DoBetterConfig.exe` or compile it yourself. Then, put it in the same folder where you have your `Doukutsu.exe`. Upon opening the app, you'll be greeted with a small window with a list of controls and keys responsible for them.
 
-To change a certain key, find it on the list, press it and then press the key you want it replaced with. Certain keys are not supported. If you try to use them, the sound will play and the key will revert to its previous self.
+To change a certain key, find it on the list, press it (use mouse keys, `ENTER` or `SPACE` for that) and then press the key you want it replaced with. Certain keys are not supported. If you try to use them, the sound will play and the key will revert to its previous self.
 
-You also cannot have the same key be responsible for more than one action, so if you want to run left using `A`, you'll need to set the action on `A` to be something else first.
+You also cannot have the same key be responsible for more than one action, so if you want to run left using `A`, you'll need to set the action on `A` to be something else first (or disable that action first).
+
+You can disable keys with `BACKSPACE`.
 
 ## How does it work?
 
