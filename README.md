@@ -1,5 +1,7 @@
 # DoBetterConfig
 
+![screenshot\_v110.png](/screenshot_v110.png)
+
 This is a supplementary program for the 2004 video game Cave Story, that allows greater flexibility with control settings.
 
 ## Table of contents
