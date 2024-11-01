@@ -28,11 +28,11 @@ todays_dict["versions"] = version_list
 
 # read the list from the local json file and if not there, append it
 
-with open("../download_data.json", 'r') as file:
+with open("download_data.json", 'r') as file:
     data_list = json.load(file)
 
 if not any(item["date"] == todays_dict["date"] for item in data_list):
     data_list.append(todays_dict)
 
-with open("../download_data.json", 'w') as file:
+with open("download_data.json", 'w') as file:
     json.dump(data_list, file, indent=2)
