@@ -1,0 +1,46 @@
+name: Daily Download Scraper
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  scrape-github-api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: automation
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      
+      - name: Install dependencies
+        run: pip install requests
+      
+      - name: Scrape data
+        run: python scripts/scraper.py
+      
+      - name: Apply changes to specific files
+        run: |
+          git add download_data.json
+          git commit -m "daily data update"
+      
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git push origin automation
+      
+      - name: Sync specific files to main
+        run: |
+          git fetch origin
+          git checkout main
+          git checkout automation -- download_data.json
+          git add download_data.json
+          git commit -m "daily sync download_data from automation branch"
+          git push origin main
