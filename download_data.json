@@ -11,5 +11,57 @@
         "download_count": 125
       }
     ]
+  },
+  {
+    "date": "2024-11-01",
+    "versions": [
+      {
+        "name": "v1.1.0",
+        "download_count": 273
+      },
+      {
+        "name": "v1.0.0",
+        "download_count": 125
+      }
+    ]
+  },
+  {
+    "date": "2024-11-02",
+    "versions": [
+      {
+        "name": "v1.1.0",
+        "download_count": 273
+      },
+      {
+        "name": "v1.0.0",
+        "download_count": 125
+      }
+    ]
+  },
+  {
+    "date": "2024-11-03",
+    "versions": [
+      {
+        "name": "v1.1.0",
+        "download_count": 273
+      },
+      {
+        "name": "v1.0.0",
+        "download_count": 125
+      }
+    ]
+  },
+  {
+    "date": "2024-11-04",
+    "versions": [
+      {
+        "name": "v1.1.0",
+        "download_count": 274
+      },
+      {
+        "name": "v1.0.0",
+        "download_count": 125
+      }
+    ]
   }
 ]
