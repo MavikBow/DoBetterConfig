@@ -26,15 +26,12 @@ jobs:
       - name: Scrape data
         run: python scripts/scraper.py
       
-      - name: Apply changes to specific files
-        run: |
-          git add download_data.json
-          git commit -m "daily data update"
-      
-      - name: Commit changes
+      - name: Commit change in download_data.json
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
+          git add download_data.json
+          git commit -m "daily data update"
           git push origin automation
       
       - name: Sync specific files to main
