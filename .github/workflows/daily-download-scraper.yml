@@ -27,12 +27,18 @@ jobs:
       
       - name: Scrape data
         run: python scripts/scraper.py
+
+      - name: Change README
+        run: |
+          python scripts/total_counter.py > output_temp.txt
+          number=$(cat output_temp.txt)
+          sed -i "0,/### Total downloads:/s/### Total downloads: [0-9]\+/### Total downloads: $number/" README.md
       
       - name: Commit change in download_data.json
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git add download_data.json
+          git add download_data.json README.md
           git commit -m "daily data update"
           git push origin automation
       
@@ -40,7 +46,7 @@ jobs:
         run: |
           git fetch origin
           git checkout main
-          git checkout automation -- download_data.json
-          git add download_data.json
+          git checkout automation -- download_data.json README.md
+          git add download_data.json README.md
           git commit -m "daily sync download_data from automation branch"
           git push origin main
