@@ -92,7 +92,7 @@ In order to compile:
 2. In the DoBetterConfig directory run
 
     ```sh
-    make
+    make launch
     ```
 
     After compiling, you should find `DoBetterConfig.exe` in the `build` directory
