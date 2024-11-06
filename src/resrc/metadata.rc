@@ -1,22 +1,22 @@
 #include "windows.h"
 
 1 VERSIONINFO
-FILEVERSION 1,1,0
-PRODUCTVERSION 1,1,0
+FILEVERSION 1,1,1
+PRODUCTVERSION 1,1,1
 FILETYPE VFT_APP
 {
     BLOCK "StringFileInfo"
     {
         BLOCK "100904E4"
         {
-            VALUE "FileVersion", "1.1.0"
+            VALUE "FileVersion", "1.1.1"
             VALUE "FileDescription", "DoBetterConfig"
             VALUE "InternalName", "Utility"
             VALUE "LegalCopyright", ""
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "DoBetterConfig.exe"
             VALUE "ProductName", "DoBetterConfig"
-            VALUE "ProductVersion", "1.1"
+            VALUE "ProductVersion", "1.1.1"
         }
     }
 
