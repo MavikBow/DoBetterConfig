@@ -1,6 +1,7 @@
 # Compiler
 CC = gcc
 CFLAGS = -Wall -Wextra -Wsign-conversion -Wconversion -pedantic -std=c99 -mwindows
+LAUNCH_CFLAGS = -O2 -s
 LIBS = -lcomctl32 -lgdi32
 
 # Resource compiler (windres for GCC)
@@ -23,11 +24,13 @@ METADATA = $(RESRC_DIR)/metadata.res
 
 all: $(BUILD_DIR) $(BUILD_DIR)/$(TARGET) 
 
-launch: $(OBJ) $(RES)
-	$(CC) $(CFLAGS) -mwindows $^ -o $@ $(LIBS)
+launch: $(BUILD_DIR) $(BUILD_DIR)/$(TARGET)_launch 
 
 $(BUILD_DIR)/$(TARGET): $(OBJ) $(RES) $(METADATA)
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
+
+$(BUILD_DIR)/$(TARGET)_launch: $(OBJ) $(RES) $(METADATA)
+	$(CC) $(CFLAGS) $(LAUNCH_CFLAGS) $^ -o $(BUILD_DIR)/$(TARGET) $(LIBS) -s
 
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
@@ -39,7 +42,8 @@ $(RESRC_DIR)/%.res: $(RESRC_DIR)/%.rc $(RESRC_DIR)/%.h $(RESRC_DIR)/*.ico
 	$(RC) $< -O coff -o $@
 
 $(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+	mkdir $(BUILD_DIR)
 
-clean:
-	rm -f $(OBJ) $(RES) $(METADATA)
+clean: 
+	del /Q /S *.o 
+	del /Q /S *.res
