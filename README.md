@@ -1,6 +1,6 @@
 # DoBetterConfig
 
-![screenshot\_v110.png](/screenshot_v110.png)
+![screenshot\_v111.png](/screenshot_v111.png)
 
 This is a supplementary program for the 2004 video game Cave Story, that allows greater flexibility with control settings.
 
@@ -58,7 +58,7 @@ This program was written for the Windows operating system.
 
 ### Pros
 
-- **PORTABLE** : Just place this 100kb file in the same folder as Cave Story (right above `DoConfig.exe` where it belongs, lol).
+- **PORTABLE** : Just place this 63kb file in the same folder as Cave Story (right above `DoConfig.exe` where it belongs, lol).
 - **A ONE TIME DEED** : As this app patches the .exe of the game, you only need to do this once. The patched executable will have the same settings wherever you decide to play the game (I, personally, carry my game on a USB drive and play on different computers).
 - **NO ADMIN ACCESS** : One of the solutions I've found online was to install third-party keyboard hookers like [`GRebind`](https://www.cavestory.org/download/miscellaneous-tools.php) or [`AutoHotKey`](https://www.autohotkey.com/). But installing them requires admin access, and I didn't have that on all the computers I was using. `DoBetterConfig` has no need for admin access.
 - **EASY TO USE** : No need to worry about setting up scripts and stuff. It's a one-window program, similar to the original `DoConfig.exe`.
@@ -92,7 +92,7 @@ In order to compile:
 2. In the DoBetterConfig directory run
 
     ```sh
-    make
+    make launch
     ```
 
     After compiling, you should find `DoBetterConfig.exe` in the `build` directory
