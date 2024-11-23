@@ -4,7 +4,7 @@
 
 This is a supplementary program for the 2004 video game Cave Story, that allows greater flexibility with control settings.
 
-### Total downloads: 433
+### Total downloads: 435
 
 ## Table of contents
 
