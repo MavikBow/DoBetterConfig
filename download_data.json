@@ -570,5 +570,22 @@
         "download_count": 125
       }
     ]
+  },
+  {
+    "date": "2024-12-05",
+    "versions": [
+      {
+        "name": "v1.1.1",
+        "download_count": 56
+      },
+      {
+        "name": "v1.1.0",
+        "download_count": 282
+      },
+      {
+        "name": "v1.0.0",
+        "download_count": 125
+      }
+    ]
   }
 ]
