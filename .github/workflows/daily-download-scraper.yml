@@ -37,6 +37,7 @@ jobs:
           python scripts/total_counter.py > output_temp.txt
           number=$(cat output_temp.txt)
           sed -i "0,/### Total downloads:/s/### Total downloads: [0-9]\+/### Total downloads: $number/" README.md
+          rm output_temp.txt
       
       - name: Commit change in download_data.json
         run: |
@@ -52,5 +53,16 @@ jobs:
           git checkout main
           git checkout automation -- download_data.json README.md
           git add download_data.json README.md
-          git commit -m "daily sync download_data from automation branch"
-          git push origin main
+
+      - name: Commit or amend
+        run: |
+          log_mes=$(git log --oneline --pretty="%an %s" | head -n 1)
+          committer=$(echo "$log_mes" | awk '{print $1}') 
+          commit_mes=$(echo "$log_mes" | awk '{$1=""; print $0}' | sed 's/^ *//g')
+          if [[ $committer == 'github-actions' && $commit_mes == 'daily sync download data from automation branch' ]]; then
+            git commit --amend -m "daily sync download data from automation branch"
+            git push --force
+          else
+            git commit -m "daily sync download data from automation branch"
+            git push
+          fi
