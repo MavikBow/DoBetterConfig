@@ -1,5 +1,6 @@
 import requests
 import json
+import sys
 from datetime import date
 
 # make a new dict elements from the data at the link
@@ -8,6 +9,9 @@ response = requests.get('https://api.github.com/repos/mavikbow/dobetterconfig/re
 
 if response.status_code == 200:
    data = response.json()
+else:
+    sys.exit(1)
+
 
 todays_dict = {}
 todays_dict["date"] = date.today().isoformat()
