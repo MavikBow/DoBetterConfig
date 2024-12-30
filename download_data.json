@@ -950,7 +950,109 @@
     "versions": [
       {
         "name": "v1.1.1",
+        "download_count": 117
+      },
+      {
+        "name": "v1.1.0",
+        "download_count": 283
+      },
+      {
+        "name": "v1.0.0",
+        "download_count": 125
+      }
+    ]
+  },
+  {
+    "date": "2024-12-28",
+    "versions": [
+      {
+        "name": "v1.1.1",
         "download_count": 118
+      },
+      {
+        "name": "v1.1.0",
+        "download_count": 283
+      },
+      {
+        "name": "v1.0.0",
+        "download_count": 125
+      }
+    ]
+  },
+  {
+    "date": "2024-12-29",
+    "versions": [
+      {
+        "name": "v1.1.1",
+        "download_count": 121
+      },
+      {
+        "name": "v1.1.0",
+        "download_count": 283
+      },
+      {
+        "name": "v1.0.0",
+        "download_count": 125
+      }
+    ]
+  },
+  {
+    "date": "2024-12-30",
+    "versions": [
+      {
+        "name": "v1.1.1",
+        "download_count": 122
+      },
+      {
+        "name": "v1.1.0",
+        "download_count": 283
+      },
+      {
+        "name": "v1.0.0",
+        "download_count": 125
+      }
+    ]
+  },
+  {
+    "date": "2024-12-31",
+    "versions": [
+      {
+        "name": "v1.1.1",
+        "download_count": 123
+      },
+      {
+        "name": "v1.1.0",
+        "download_count": 283
+      },
+      {
+        "name": "v1.0.0",
+        "download_count": 125
+      }
+    ]
+  },
+  {
+    "date": "2025-01-01",
+    "versions": [
+      {
+        "name": "v1.1.1",
+        "download_count": 128
+      },
+      {
+        "name": "v1.1.0",
+        "download_count": 283
+      },
+      {
+        "name": "v1.0.0",
+        "download_count": 125
+      }
+    ]
+  },
+  {
+    "date": "2025-01-02",
+    "versions": [
+      {
+        "name": "v1.1.1",
+        "download_count": 129
       },
       {
         "name": "v1.1.0",
