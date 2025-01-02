@@ -1,14 +1,12 @@
-# DoBetterConfig
+# DoBetterConfig    [![Downloads](https://img.shields.io/github/downloads/MavikBow/DoBetterConfig/total?color=4c1)](https://github.com/MavikBow/DoBetterConfig/releases)
 
 ![screenshot\_v111.png](/screenshot_v111.png)
 
 This is a supplementary program for the 2004 video game Cave Story, that allows greater flexibility with control settings.
 
-### Total downloads: 537
-
 ## Table of contents
 
-- [DoBetterConfig](#dobetterconfig)
+- [DoBetterConfig](#dobetterconfig----)
   - [Table of contents](#table-of-contents)
   - [What is this app?](#what-is-this-app)
   - [How to use the app?](#how-to-use-the-app)
