@@ -1947,5 +1947,22 @@
         "download_count": 125
       }
     ]
+  },
+  {
+    "date": "2025-02-24",
+    "versions": [
+      {
+        "name": "v1.1.1",
+        "download_count": 230
+      },
+      {
+        "name": "v1.1.0",
+        "download_count": 283
+      },
+      {
+        "name": "v1.0.0",
+        "download_count": 125
+      }
+    ]
   }
 ]
