@@ -16,19 +16,16 @@ else:
 todays_dict = {}
 todays_dict["date"] = date.today().isoformat()
 
-version_list = []
-per_version_dict = {}
-
+version_dict = {}
    
 for item in data:
-    per_version_dict["name"] = item["tag_name"]
+    version_name = item["tag_name"]
     counter = 0
     for unit in item["assets"]:
         counter += unit["download_count"]
-    per_version_dict["download_count"] = counter
-    version_list.append(per_version_dict.copy())
+    version_dict[version_name] = counter
 
-todays_dict["versions"] = version_list
+todays_dict["versions"] = version_dict
 
 # read the list from the local json file and if not there, append it
 
