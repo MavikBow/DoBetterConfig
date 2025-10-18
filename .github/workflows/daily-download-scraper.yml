@@ -14,14 +14,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: automation
       
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      
+
       - name: Install dependencies
         run: pip install requests
       
@@ -32,30 +30,11 @@ jobs:
           max_attempts: 45
           command: python scripts/scraper.py
 
-#     - name: Change README
-#       run: |
-#         python scripts/total_counter.py > output_temp.txt
-#         number=$(cat output_temp.txt)
-#         sed -i "0,/### Total downloads:/s/### Total downloads: [0-9]\+/### Total downloads: $number/" README.md
-#         rm output_temp.txt
-      
-      - name: Commit change in download_data.json
+      - name: Commit or amend change in download_data.csv
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git add download_data.json # README.md
-          git commit -m "daily data update"
-          git push origin automation
-      
-      - name: Sync specific files to main
-        run: |
-          git fetch origin
-          git checkout main
-          git checkout automation -- download_data.json # README.md
-          git add download_data.json # README.md
-
-      - name: Commit or amend
-        run: |
+          git add download_data.csv # README.md
           log_mes=$(git log --oneline --pretty="%an %s" | head -n 1)
           committer=$(echo "$log_mes" | awk '{print $1}') 
           commit_mes=$(echo "$log_mes" | awk '{$1=""; print $0}' | sed 's/^ *//g')
