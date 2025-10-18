@@ -1,3 +1,4 @@
+import pandas as pd
 import requests
 import json
 import sys
@@ -12,28 +13,27 @@ if response.status_code == 200:
 else:
     sys.exit(1)
 
-
 todays_dict = {}
 todays_dict["date"] = date.today().isoformat()
 
-version_dict = {}
-   
 for item in data:
     version_name = item["tag_name"]
     counter = 0
     for unit in item["assets"]:
         counter += unit["download_count"]
-    version_dict[version_name] = counter
+    todays_dict[version_name] = int(counter)
 
-todays_dict["versions"] = version_dict
+# append the data to the whole dataset
 
-# read the list from the local json file and if not there, append it
+df_today = pd.DataFrame([todays_dict])
+df_existing = pd.read_csv('download_data.csv')
 
-with open("download_data.json", 'r') as file:
-    data_list = json.load(file)
+df_combined = pd.concat([df_existing, df_today])
+df_combined = df_combined.drop_duplicates(subset='date', keep='first')
 
-if not any(item["date"] == todays_dict["date"] for item in data_list):
-    data_list.append(todays_dict)
+# Convert all numeric columns to integers
+for col in df_combined.columns:
+    if col != 'date':  # Skip non-numeric columns
+        df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce').astype('Int64')
 
-with open("download_data.json", 'w') as file:
-    json.dump(data_list, file, indent=2)
+df_combined.to_csv('download_data.csv', index=False)
