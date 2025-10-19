@@ -1,0 +1,9 @@
+*.swp 
+*.swo 
+*.o
+*.res
+plan.md
+plan.txt
+*.exe
+build/
+*.dat

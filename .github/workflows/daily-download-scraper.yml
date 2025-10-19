@@ -1,0 +1,47 @@
+name: Daily Download Scraper
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:    
+
+jobs:
+  scrape-github-api:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install requests pandas
+      
+      - name: Scrape data
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 30
+          max_attempts: 45
+          command: python scripts/scraper.py
+
+      - name: Commit or amend change in download_data.csv
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add download_data.csv # README.md
+          log_mes=$(git log --oneline --pretty="%an %s" | head -n 1)
+          committer=$(echo "$log_mes" | awk '{print $1}') 
+          commit_mes=$(echo "$log_mes" | awk '{$1=""; print $0}' | sed 's/^ *//g')
+          if [[ $committer == 'github-actions' && $commit_mes == 'daily sync download data from automation branch' ]]; then
+            git commit --amend -m "daily sync download data from automation branch"
+            git push --force
+          else
+            git commit -m "daily sync download data from automation branch"
+            git push
+          fi
