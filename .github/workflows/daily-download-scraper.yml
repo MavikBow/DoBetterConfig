@@ -30,7 +30,7 @@ jobs:
         with:
           timeout_minutes: 30
           max_attempts: 45
-          command: python scripts/scraper.py
+          command: python .github/scripts/scraper.py
 
       - name: Commit or amend change in download_data.csv
         run: |
