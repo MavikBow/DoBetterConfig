@@ -2,6 +2,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Wsign-conversion -Wconversion -pedantic -std=c99 -mwindows
 LAUNCH_CFLAGS = -O2 -s
+LDLIBS = -lcomctl32
 
 # Resource compiler (windres for GCC)
 RC = windres
@@ -26,10 +27,10 @@ all: $(BUILD_DIR) $(BUILD_DIR)/$(TARGET)
 launch: $(BUILD_DIR) $(BUILD_DIR)/$(TARGET)_launch 
 
 $(BUILD_DIR)/$(TARGET): $(OBJ) $(RES) $(METADATA)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
 
 $(BUILD_DIR)/$(TARGET)_launch: $(OBJ) $(RES) $(METADATA)
-	$(CC) $(CFLAGS) $(LAUNCH_CFLAGS) $^ -o $(BUILD_DIR)/$(TARGET) -s
+	$(CC) $(CFLAGS) $(LAUNCH_CFLAGS) $^ -o $(BUILD_DIR)/$(TARGET) -s $(LDLIBS)
 
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)

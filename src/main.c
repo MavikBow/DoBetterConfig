@@ -21,6 +21,10 @@ int isTriggerPressed = FALSE;
 HINSTANCE g_hInst;
 TCHAR versionLabel[20] = "Version: 1.1.2";
 HFONT hFont;
+int g_dpi = 96;
+
+// scales a size given in 96-DPI pixels to the current system DPI
+static int S(int px) { return MulDiv(px, g_dpi, 96); }
 
 BOOL takingControlInput;
 int changingControlNumber;
@@ -107,22 +111,6 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 					case ID_CANCELBUTTON:
 						DestroyWindow(hWnd);
-						break;
-
-					case ID_BACKUPCHECKBOX:
-						{
-							UINT checked = IsDlgButtonChecked(hWnd, ID_BACKUPCHECKBOX);
-							if(checked) CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_UNCHECKED);
-							else CheckDlgButton(hWnd, ID_BACKUPCHECKBOX, BST_CHECKED);
-						}
-						break;
-
-					case ID_RESETCHECKBOX:
-						{
-							UINT checked = IsDlgButtonChecked(hWnd, ID_RESETCHECKBOX);
-							if(checked) CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_UNCHECKED);
-							else CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_CHECKED);
-						}
 						break;
 
 					default:;
@@ -214,16 +202,6 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			CheckDlgButton(hWnd, ID_RESETCHECKBOX, BST_CHECKED);
 			break;
 
-		case WM_NCCREATE:
-			if(readInput() != 0)
-			{
-				MessageBeep(MB_OK);
-				MessageBox(hWnd, "There was trouble reading Doukutsu.exe", NULL, MB_OK);
-				DestroyWindow(hWnd);
-			}
-			parseInput();
-			break;
-
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			break;
@@ -238,12 +216,31 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	g_hInst = hInstance;
 	takingControlInput = FALSE;
 
-	int window_width = 460;
-	int window_height = 288;
+	(void)hPrevInstance;
+	(void)pCmdLine;
 
-	/* these two lines are here to make the compiler shut up about me not using these two variables in the code */
-	int useless_int = (int)hPrevInstance | (int)pCmdLine; 
-	useless_int ^= 1;
+	INITCOMMONCONTROLSEX icc;
+	icc.dwSize = (DWORD)sizeof(icc);
+	icc.dwICC = ICC_LISTVIEW_CLASSES | ICC_STANDARD_CLASSES;
+	InitCommonControlsEx(&icc);
+
+	if(readInput() != 0)
+	{
+		MessageBeep(MB_ICONERROR);
+		MessageBox(NULL, "There was trouble reading Doukutsu.exe", NULL, MB_OK | MB_ICONERROR);
+		return 1;
+	}
+	parseInput();
+
+	HDC hdcScreen = GetDC(NULL);
+	if(hdcScreen)
+	{
+		g_dpi = GetDeviceCaps(hdcScreen, LOGPIXELSX);
+		ReleaseDC(NULL, hdcScreen);
+	}
+
+	int window_width = S(460);
+	int window_height = S(288);
 
 	// Register the window class
 
@@ -275,6 +272,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 			HWND_DESKTOP,
 			NULL, hInstance, NULL);
 
+	if(!hWindow)
+		return 1;
+
 	ShowWindow(hWindow, nCmdShow);
 
 	// Run the message loop
@@ -302,7 +302,7 @@ HWND CreateListView(HINSTANCE hInstance, HWND hWndParent)
 			WC_LISTVIEW,                // class name - defined in commctrl.h
 			TEXT(""),
 			WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_NOSORTHEADER | LVS_REPORT | LVS_SINGLESEL,
-			15, 15, 300, 231,
+			S(15), S(15), S(300), S(231),
 			hWndParent,
 			(HMENU)ID_LISTVIEW,
 			hInstance, 
@@ -333,7 +333,7 @@ BOOL InitListView(HWND hwndListView)
 	// initialize the columns
 	lvColumn.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 	lvColumn.fmt = LVCFMT_LEFT;
-	lvColumn.cx = 150;
+	lvColumn.cx = S(150);
 
 	for(i = 0; i < 2; i++)
 	{
@@ -354,7 +354,7 @@ BOOL InsertListViewItems(HWND hwndListView)
 	// set the number of the items in the list
 	ListView_SetItemCount(hwndListView, 13);
 
-	LVITEM lvItem;
+	LVITEM lvItem = {0};
 	TCHAR szString[13][2][30] = {{TEXT("Action 0"),	TEXT("Key 0")},
 								{TEXT("Action 1"),	TEXT("Key 1")},
 								{TEXT("Action 2"),	TEXT("Key 2")},
@@ -373,13 +373,12 @@ BOOL InsertListViewItems(HWND hwndListView)
 	for(int i = 0; i < 13; i++) strcpy(szString[i][1], retrieveKeyName2(i));
 
 	// initialize the item
-	lvItem.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
-	lvItem.stateMask = 0;
+	lvItem.mask = LVIF_TEXT;
 	lvItem.iSubItem = 0;
-	lvItem.state = 0;
 
 	for(int i = 0; i < 13; i++)
 	{
+		lvItem.iItem = i;
 		lvItem.pszText = szString[i][0];
 		int Ret = ListView_InsertItem(hwndListView, &lvItem);
 		ListView_SetItemText(hwndListView, (WPARAM)Ret, 1, szString[i][1]);
@@ -392,7 +391,7 @@ HWND CreateOtherControls(HWND hWndParent)
 {
 	// Create a font to use with the version label
 	hFont = CreateFontA
-		(14, 0, 0, 0,
+		(S(14), 0, 0, 0,
 		 FW_DONTCARE,
 		 FALSE,
 		 FALSE,
@@ -407,8 +406,8 @@ HWND CreateOtherControls(HWND hWndParent)
 	HWND hCheckBox_BackupDoukutsu = CreateWindowA(
 			WC_BUTTONA,
 			"Backup Doukutsu.exe",
-			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
-			325, 25, 115, 40,
+			WS_VISIBLE | WS_CHILD | BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,
+			S(325), S(25), S(115), S(40),
 			hWndParent,
 			(HMENU)ID_BACKUPCHECKBOX,
 			NULL,
@@ -419,8 +418,8 @@ HWND CreateOtherControls(HWND hWndParent)
 	HWND hCheckBox_ResetConfig = CreateWindowA(
 			WC_BUTTONA,
 			"Reset Config.dat",
-			WS_VISIBLE | WS_CHILD | BS_CHECKBOX | BS_MULTILINE | WS_TABSTOP,
-			325, 70, 115, 40,
+			WS_VISIBLE | WS_CHILD | BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,
+			S(325), S(70), S(115), S(40),
 			hWndParent,
 			(HMENU)ID_RESETCHECKBOX,
 			NULL,
@@ -432,7 +431,7 @@ HWND CreateOtherControls(HWND hWndParent)
 			WC_BUTTONA,
 			"Reset All",
 			WS_VISIBLE | WS_CHILD | WS_TABSTOP,
-			325, 133, 115, 35,
+			S(325), S(133), S(115), S(35),
 			hWndParent,
 			(HMENU)ID_RESETBUTTON,
 			NULL,
@@ -444,7 +443,7 @@ HWND CreateOtherControls(HWND hWndParent)
 			WC_BUTTONA,
 			"Apply",
 			WS_VISIBLE | WS_CHILD | WS_TABSTOP,
-			325, 172, 115, 35,
+			S(325), S(172), S(115), S(35),
 			hWndParent,
 			(HMENU)ID_APPLYBUTTON,
 			NULL,
@@ -456,7 +455,7 @@ HWND CreateOtherControls(HWND hWndParent)
 			WC_BUTTONA,
 			"Cancel",
 			WS_VISIBLE | WS_CHILD | WS_TABSTOP,
-			325, 211, 115, 35,
+			S(325), S(211), S(115), S(35),
 			hWndParent,
 			(HMENU)ID_CANCELBUTTON,
 			NULL,
@@ -468,7 +467,7 @@ HWND CreateOtherControls(HWND hWndParent)
 			WC_STATIC,
 			versionLabel,
 			WS_VISIBLE | WS_CHILD,
-			3, 246, 115, 20,
+			S(3), S(246), S(115), S(20),
 			hWndParent,
 			NULL,
 			NULL,

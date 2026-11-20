@@ -70,7 +70,7 @@ int resetConfig()
 {
 	FILE* out = fopen("Config.dat", "r+b");
 	if(out == NULL) return -1;//printf("Trouble opening Config.dat");
-	const unsigned char* ZERO = 0x0;
+	const unsigned char ZERO = 0x0;
 
 	fseek(out, 0x60, SEEK_SET);
 	fwrite(&ZERO, 1, 1, out);
@@ -86,19 +86,38 @@ int resetConfig()
 int backUpDoukutsu()
 {
 	FILE* in = fopen("Doukutsu.exe", "rb");
+	if(in == NULL) return -1;
+
 	FILE* out = fopen("Doukutsu_backup.exe", "wb");
-	if(out == NULL) return -1;//printf("game over\n");
+	if(out == NULL)
+	{
+		fclose(in);
+		return -1;
+	}
 
-	for(char ch; fread(&ch, 1, 1, in) > 0; fwrite(&ch, 1, 1, out));
+	int result = 0;
+	unsigned char buffer[4096];
+	size_t n;
+	while((n = fread(buffer, 1, sizeof buffer, in)) > 0)
+	{
+		if(fwrite(buffer, 1, n, out) != n)
+		{
+			result = -1;
+			break;
+		}
+	}
+	if(ferror(in)) result = -1;
 
-	fseek(out, location1, SEEK_SET);
-	fwrite(&defaultArr1, 176, 1, out);
-	fseek(out, location2, SEEK_SET);
-	fwrite(&defaultArr2, 176, 1, out);
+	if(result == 0)
+	{
+		if(fseek(out, location1, SEEK_SET) != 0 || fwrite(defaultArr1, 176, 1, out) != 1 ||
+		   fseek(out, location2, SEEK_SET) != 0 || fwrite(defaultArr2, 176, 1, out) != 1)
+			result = -1;
+	}
 
 	fclose(in);
-	fclose(out);
-	return 0;
+	if(fclose(out) != 0) result = -1;
+	return result;
 }
 
 int readInput()
