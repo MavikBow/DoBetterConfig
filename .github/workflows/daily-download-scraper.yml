@@ -13,12 +13,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v7
         with:
           python-version: '3.x'
 
@@ -26,10 +26,13 @@ jobs:
         run: pip install requests pandas
       
       - name: Scrape data
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          timeout_minutes: 30
-          max_attempts: 45
+          timeout_minutes: 5          # time limit for a single attempt
+          retry_wait_seconds: 1800    # wait 30 minutes between attempts
+          max_attempts: 12            # ~5.5 hours; GitHub kills hosted jobs after 6 hours
           command: python .github/scripts/scraper.py
 
       - name: Commit or amend change in download_data.csv

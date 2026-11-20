@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import requests
 import json
@@ -6,11 +7,23 @@ from datetime import date
 
 # make a new dict elements from the data at the link
 
-response = requests.get('https://api.github.com/repos/mavikbow/dobetterconfig/releases')
+# Authenticated requests get a per-repo rate limit (1000/h) instead of the
+# 60/h per-IP limit that GitHub's shared runners can exhaust.
+headers = {"Accept": "application/vnd.github+json"}
+token = os.environ.get("GITHUB_TOKEN")
+if token:
+    headers["Authorization"] = f"Bearer {token}"
+
+response = requests.get('https://api.github.com/repos/mavikbow/dobetterconfig/releases', headers=headers, timeout=30)
 
 if response.status_code == 200:
    data = response.json()
 else:
+    print(f"GitHub API request failed: HTTP {response.status_code}", file=sys.stderr)
+    for h in ("x-ratelimit-limit", "x-ratelimit-remaining", "x-ratelimit-reset"):
+        if h in response.headers:
+            print(f"  {h}: {response.headers[h]}", file=sys.stderr)
+    print(response.text[:500], file=sys.stderr)
     sys.exit(1)
 
 todays_dict = {}
